@@ -1,0 +1,11 @@
+
+.mod_moodlecst_listbuttons input[type="submit"]{
+	width: 400px;
+	/*float: left;*/
+}
+
+.mod_moodlecst_actionbuttons {
+	display: flex;
+	float: right;
+}
+

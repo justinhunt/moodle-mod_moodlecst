@@ -1,0 +1,18 @@
+This is a simple CRUD template that ties in with the NEWMODULE template
+You can make more than one crud item by generating from template multiple times
+Use multi file replace to replace:
+i) (CASE SENSITIVE PLEASE) MOD_CRUDMODULE eg MOD_CST, then 
+ii) CRUDMODULE eg cst, then 
+iii) CRUD eg slidepair, 
+
+By default the db table is called "items" and capabilities are itemview and itemedit
+You could alter those in install.xml / CRUDlib.php and access.php
+
+You will also need to 
+a) add a link to the CRUDs in tabs.php and
+b) add the lang strings from CRUDlang.php to the main lang file
+
+The forms for each of the item types will be the first things you will want to customize
+Backup and restore is not implemented yet.
+
+
