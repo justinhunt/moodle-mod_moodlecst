@@ -50,7 +50,12 @@ defined('MOODLE_INTERNAL') || die();
 		MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . '1',
 		MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . '2',
 		MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . '3',
-		MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . '4');
+		MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . '4',
+		MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA,
+		MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . '1',
+		MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . '2',
+		MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . '3',
+		MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . '4');
 		foreach ($fileareas as $filearea){
 			$fs->delete_area_files($context->id,'mod_moodlecst',$filearea,$itemid);
 		}
@@ -69,7 +74,7 @@ defined('MOODLE_INTERNAL') || die();
 
 	function mod_moodlecst_slidepair_fetch_filemanager_options($course, $maxfiles=1){
 		$maxbytes=$course->maxbytes;
-		return array('subdirs'=>true, 'maxfiles'=>$maxfiles,'maxbytes'=>$maxbytes,'accepted_types' => array('audio'));
+		return array('subdirs'=>true, 'maxfiles'=>$maxfiles,'maxbytes'=>$maxbytes,'accepted_types' => array('audio','image'));
 	}
 
 

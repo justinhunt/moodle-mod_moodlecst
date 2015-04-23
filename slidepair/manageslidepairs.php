@@ -92,21 +92,33 @@ $redirecturl = new moodle_url('/mod/moodlecst/slidepair/slidepairs.php', array('
 
 //get filechooser and html editor options
 $editoroptions = mod_moodlecst_slidepair_fetch_editor_options($course, $context);
-$audiofilemanageroptions = mod_moodlecst_slidepair_fetch_filemanager_options($course,1);
+$filemanageroptions = mod_moodlecst_slidepair_fetch_filemanager_options($course,1);
 
 
 //get the mform for our item
 switch($type){
-	case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
-		$mform = new moodlecst_add_item_form_textchoice(null,
+	case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
+		$mform = new moodlecst_add_item_form_picturechoice(null,
 			array('editoroptions'=>$editoroptions, 
-			'audiofilemanageroptions'=>$audiofilemanageroptions)
+			'filemanageroptions'=>$filemanageroptions)
 		);
 		break;
 	case MOD_MOODLECST_SLIDEPAIR_TYPE_AUDIOCHOICE:
 		$mform = new moodlecst_add_item_form_audiochoice(null,
 			array('editoroptions'=>$editoroptions, 
-			'audiofilemanageroptions'=>$audiofilemanageroptions)
+			'filemanageroptions'=>$filemanageroptions)
+		);
+		break;
+	case MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO:
+		$mform = new moodlecst_add_item_form_taboo(null,
+			array('editoroptions'=>$editoroptions, 
+			'filemanageroptions'=>$filemanageroptions)
+		);
+		break;
+	case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
+		$mform = new moodlecst_add_item_form_textchoice(null,
+			array('editoroptions'=>$editoroptions, 
+			'filemanageroptions'=>$filemanageroptions)
 		);
 		break;
 	case MOD_MOODLECST_SLIDEPAIR_NONE:
@@ -131,8 +143,16 @@ if ($data = $mform->get_data()) {
 		$theitem->visible = $data->visible;
 		$theitem->order = $data->order;
 		$theitem->type = $data->type;
-		$theitem->shuffleanswers = $data->shuffleanswers;
-		$theitem->correctanswer = $data->correctanswer;
+		if(property_exists($data,MOD_MOODLECST_SLIDEPAIR_SHUFFLEANSWERS)){
+			$theitem->shuffleanswers = $data->{MOD_MOODLECST_SLIDEPAIR_SHUFFLEANSWERS};
+		}else{
+			$theitem->shuffleanswers = 1;
+		}
+		if(property_exists($data,MOD_MOODLECST_SLIDEPAIR_CORRECTANSWER)){
+			$theitem->correctanswer = $data->{MOD_MOODLECST_SLIDEPAIR_CORRECTANSWER};
+		}else{
+			$theitem->correctanswer = 1;
+		}
 		$theitem->name = $data->name;
 		$theitem->modifiedby=$USER->id;
 		$theitem->timemodified=time();
@@ -167,9 +187,17 @@ if ($data = $mform->get_data()) {
 		$theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION} = $data->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION} ;
 		$theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION.'format'} = $data->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION.'format'} ;
 		
-		//save item audio files
-		file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA,
-			   $theitem->id, $audiofilemanageroptions);
+		//save item files
+		if(property_exists($data,MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION)){
+			file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA,
+				   $theitem->id, $filemanageroptions);
+		}
+			   
+		//save item picture files
+		if(property_exists($data,MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION)){
+			file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA,
+				   $theitem->id, $filemanageroptions);
+		}
 					
 		//do things dependant on type
 		switch($data->type){
@@ -198,7 +226,7 @@ if ($data = $mform->get_data()) {
 				// Save answer data
 				for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
 					file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER . $i}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . $i,
-					   $theitem->id, $audiofilemanageroptions);
+					   $theitem->id, $filemanageroptions);
 				}
 				
 				//save answer layout data. We ignore this here
@@ -208,7 +236,23 @@ if ($data = $mform->get_data()) {
 				$theitem->answercount=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;
 				//$theitem->answercount=$answercount;			
 				break;
-										
+
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
+				// Save answer data
+				for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
+					file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER . $i}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $i,
+					   $theitem->id, $filemanageroptions);
+				}
+				
+				//save answer layout data. We ignore this here
+				$theitem->{MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW}=0;
+				$theitem->{MOD_MOODLECST_SLIDEPAIR_ANSWERWIDTH}=0;
+				//its hard to tell from here how many audio files were added. 
+				$theitem->answercount=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;
+				//$theitem->answercount=$answercount;			
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO:
 			default:
 				break;
 		
@@ -247,8 +291,15 @@ if ($edit) {
 	//prepare audio file areas
 	$draftitemid = file_get_submitted_draft_itemid(MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION);
 	file_prepare_draft_area($draftitemid, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA, $data->itemid,
-						$audiofilemanageroptions);
+						$filemanageroptions);
 	$data->{MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION} = $draftitemid;
+	
+	//prepare picture file areas
+	$draftitemid = file_get_submitted_draft_itemid(MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION);
+	file_prepare_draft_area($draftitemid, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA, $data->itemid,
+						$filemanageroptions);
+	$data->{MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION} = $draftitemid;
+	
 	
 	//Set up the item type specific parts of the form data
 	switch($type){
@@ -267,8 +318,21 @@ if ($edit) {
 				//audio editor
 				$draftitemid = file_get_submitted_draft_itemid(MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER . $i);
 				file_prepare_draft_area($draftitemid, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . $i, $data->itemid,
-									$audiofilemanageroptions);
+									$filemanageroptions);
 				$data->{MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER . $i} = $draftitemid;
+			
+			}
+			
+			break;
+		case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
+			
+			//prepare answer areas
+			for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
+				//audio editor
+				$draftitemid = file_get_submitted_draft_itemid(MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER . $i);
+				file_prepare_draft_area($draftitemid, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $i, $data->itemid,
+									$filemanageroptions);
+				$data->{MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER . $i} = $draftitemid;
 			
 			}
 			

@@ -34,7 +34,8 @@ defined('MOODLE_INTERNAL') || die();
 define('MOD_MOODLECST_FRANKY','mod_moodlecst');
 define('MOD_MOODLECST_LANG','mod_moodlecst');
 define('MOD_MOODLECST_TABLE','moodlecst');
-define('MOD_MOODLECST_USERTABLE','moodlecst_attempt');
+define('MOD_MOODLECST_ATTEMPTTABLE','moodlecst_attempt');
+define('MOD_MOODLECST_ATTEMPTITEMTABLE','moodlecst_attemptitem');
 define('MOD_MOODLECST_MODNAME','moodlecst');
 define('MOD_MOODLECST_URL','/mod/moodlecst');
 define('MOD_MOODLECST_CLASS','mod_moodlecst');
@@ -44,6 +45,8 @@ define('MOD_MOODLECST_GRADELOWEST', 1);
 define('MOD_MOODLECST_GRADELATEST', 2);
 define('MOD_MOODLECST_GRADEAVERAGE', 3);
 define('MOD_MOODLECST_GRADENONE', 4);
+define('MOD_MOODLECST_MODETEACHERSTUDENT', 0);
+define('MOD_MOODLECST_MODESTUDENTSTUDENT', 1);
 
 require_once($CFG->dirroot.'/mod/moodlecst/slidepair/slidepairlib.php');
 
@@ -619,15 +622,16 @@ function moodlecst_get_file_info($browser, $areas, $course, $cm, $context, $file
     return null;
 }
 
+
 /**
- * Serves the files from the moodlecst file areas
+ * Serves the files from the tquiz file areas
  *
- * @package mod_moodlecst
+ * @package mod_tquiz
  * @category files
  *
  * @param stdClass $course the course object
  * @param stdClass $cm the course module object
- * @param stdClass $context the moodlecst's context
+ * @param stdClass $context the tquiz's context
  * @param string $filearea the name of the file area
  * @param array $args extra arguments (itemid, path)
  * @param bool $forcedownload whether or not force download
@@ -641,9 +645,31 @@ function moodlecst_pluginfile($course, $cm, $context, $filearea, array $args, $f
     }
 
     require_login($course, true, $cm);
+	
+	$itemid = (int)array_shift($args);
 
-    send_file_not_found();
+    require_course_login($course, true, $cm);
+
+    if (!has_capability('mod/moodlecst:view', $context)) {
+        return false;
+    }
+
+    // $arg could be revision number or index.html
+   // $arg = array_shift($args);
+   //$itemid = (int)array_shift($args);
+
+        $fs = get_file_storage();
+        $relativepath = implode('/', $args);
+        $fullpath = "/$context->id/mod_moodlecst/$filearea/$itemid/$relativepath";
+		//error_log($fullpath);
+        if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+          return false;
+        }
+
+        // finally send the file
+        send_stored_file($file, null, 0, $forcedownload, $options);
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Navigation API                                                             //

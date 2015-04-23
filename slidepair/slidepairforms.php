@@ -66,7 +66,8 @@ abstract class moodlecst_add_item_form_base extends moodleform {
      * An array of options used in the filemanager
      * @var array
      */
-    protected $audiofilemanageroptions = array();
+    protected $filemanageroptions = array();
+	
 	
     /**
      * True if this is a standard item of false if it does something special.
@@ -98,7 +99,8 @@ abstract class moodlecst_add_item_form_base extends moodleform {
     public final function definition() {
         $mform = $this->_form;
         $this->editoroptions = $this->_customdata['editoroptions'];
-		$this->audiofilemanageroptions = $this->_customdata['audiofilemanageroptions'];
+		$this->filemanageroptions = $this->_customdata['filemanageroptions'];
+
 	
         $mform->addElement('header', 'typeheading', get_string('createaitem', 'moodlecst', get_string($this->typestring, 'moodlecst')));
 
@@ -173,7 +175,7 @@ abstract class moodlecst_add_item_form_base extends moodleform {
                            $name,
                            $label,
                            null,
-						   $this->audiofilemanageroptions
+						   $this->filemanageroptions
                            );
 		
 	}
@@ -185,6 +187,26 @@ abstract class moodlecst_add_item_form_base extends moodleform {
 		return $this->add_audio_upload(MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER,$count,$label,$required);
 	}	
 	
+	protected final function add_picture_upload($name, $count=-1, $label = null, $required = false) {
+		if($count>-1){
+			$name = $name . $count ;
+		}
+		
+		$this->_form->addElement('filemanager',
+                           $name,
+                           $label,
+                           null,
+						   $this->filemanageroptions
+                           );
+		
+	}
+
+	protected final function add_picture_item_upload($label = null, $required = false) {
+		return $this->add_picture_upload(MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION,-1,$label,$required);
+	}
+	protected final function add_picture_answer_upload($count,$label = null, $required = false) {
+		return $this->add_picture_upload(MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER,$count,$label,$required);
+	}	
 	
     /**
      * Convenience function: Adds an answer editor
@@ -194,7 +216,7 @@ abstract class moodlecst_add_item_form_base extends moodleform {
      * @param bool $required
      * @return void
      */
-    protected final function add_answer($count, $label = null, $required = false) {
+    protected final function add_editor_answer($count, $label = null, $required = false) {
         if ($label === null) {
             $label = get_string('answer', 'moodlecst');
         }
@@ -204,6 +226,27 @@ abstract class moodlecst_add_item_form_base extends moodleform {
             $this->_form->addRule(MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $count . '_editor', get_string('required'), 'required', null, 'client');
         }
     }
+	
+	/**
+     * Convenience function: Adds a text area as answer
+     *
+     * @param int $count The count of the element to add
+     * @param string $label, null means default
+     * @param bool $required
+     * @return void
+     */
+    protected final function add_textarea_answer($count, $label = null, $required = false) {
+        if ($label === null) {
+            $label = get_string('answer', 'moodlecst');
+        }
+
+        $this->_form->addElement('textarea', MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $count, $label, 'wrap="virtual" rows="5" cols="80"', array());
+        $this->_form->setDefault(MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $count, '');
+        if ($required) {
+            $this->_form->addRule(MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $count, get_string('required'), 'required', null, 'client');
+        }
+    }
+
 
 	  /**
      * Convenience function: Adds correct/incorrect attribute
@@ -241,23 +284,12 @@ abstract class moodlecst_add_item_form_base extends moodleform {
      * @param string $label, null means default
      * @return void
      */
-    protected final function add_answersinrow( $label = null) {
+    protected final function add_editor_answersinrow( $label = null) {
 	
 		$this->_form->addElement('hidden', MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW,0);
         $this->_form->setType(MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW, PARAM_INT);
 		return;
-		/*
-        if ($label === null) {
-            $label = get_string('answersinrow', 'moodlecst');
-        }
-        $buttonoptions = array();
-        for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
-        	$buttonoptions[$i]=$i;
-        }
-        $this->_form->addElement('select', MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW, $label,$buttonoptions);
-        $this->_form->setDefault(MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW, 2);
-        $this->_form->setType(MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW, PARAM_INT);
-		*/
+	
     }
     
      /**
@@ -266,7 +298,7 @@ abstract class moodlecst_add_item_form_base extends moodleform {
      * @param string $label, null means default
      * @return void
      */
-    protected final function add_answerwidth( $label = null) {
+    protected final function add_editor_answerwidth( $label = null) {
         if ($label === null) {
             $label = get_string('answerwidth', 'moodlecst');
         }
@@ -322,13 +354,13 @@ class moodlecst_add_item_form_textchoice extends moodlecst_add_item_form_base {
 		
 		$this->add_audio_item_upload(get_string('audioitemfile','moodlecst'));
 		$this->add_shuffleanswers();
-		$this->add_answersinrow();
-		$this->add_answerwidth();
+		$this->add_editor_answersinrow();
+		$this->add_editor_answerwidth();
 		
         for ($i = 1; $i <= MOD_MOODLECST_SLIDEPAIR_MAXANSWERS; $i++) {
             $this->_form->addElement('header', 'answertitle'.$i, get_string('answer').' '. $i);
             $required = $i==1;
-            $this->add_answer($i, null, $required);
+            $this->add_editor_answer($i, null, $required);
 			$this->add_correctanswer($i);
 			$this->_form->setExpanded('answertitle'.$i);
 
@@ -351,7 +383,41 @@ class moodlecst_add_item_form_audiochoice extends moodlecst_add_item_form_base {
         for ($i = 1; $i <= MOD_MOODLECST_SLIDEPAIR_MAXANSWERS; $i++) {
             $this->_form->addElement('header', 'answertitle'.$i, get_string('answer').' '. $i);
             $required = $i==1;
-            $this->add_audio_answer_upload($i, null, $required);
+            $this->add_textarea_answer($i, null, $required);
+			$this->add_correctanswer($i);
+			$this->_form->setExpanded('answertitle'.$i);
+        }
+    }
+}
+
+
+//this is the standard form for creating a multi choice item
+class moodlecst_add_item_form_taboo extends moodlecst_add_item_form_base {
+
+    public $type = 'taboo';
+    public $typestring = 'taboo';
+
+    public function custom_definition() {
+	
+
+    }
+}
+
+//this is the standard form for creating a multi choice item
+class moodlecst_add_item_form_picturechoice extends moodlecst_add_item_form_base {
+
+    public $type = 'picturechoice';
+    public $typestring = 'picturechoice';
+
+    public function custom_definition() {
+	
+		$this->add_picture_item_upload(get_string('pictureitemfile','moodlecst'));
+		$this->add_shuffleanswers();
+
+        for ($i = 1; $i <= MOD_MOODLECST_SLIDEPAIR_MAXANSWERS; $i++) {
+            $this->_form->addElement('header', 'answertitle'.$i, get_string('answer').' '. $i);
+            $required = $i==1;
+            $this->add_picture_answer_upload($i, null, $required);
 			$this->add_correctanswer($i);
 			$this->_form->setExpanded('answertitle'.$i);
         }

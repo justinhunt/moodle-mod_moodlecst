@@ -46,7 +46,7 @@
         <FIELD NAME="moodlecst" TYPE="int" LENGTH="18" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="type" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="visible" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="visible" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="1" SEQUENCE="false"/>
         <FIELD NAME="itemtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="itemtextformat" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="itemaudiofname" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
@@ -58,7 +58,7 @@
         <FIELD NAME="answertext3format" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="answertext4" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="answertext4format" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="correcttanswer" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="correctanswer" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="shuffleanswers" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="1" SEQUENCE="false"/>
         <FIELD NAME="answercount" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="answersinrow" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>

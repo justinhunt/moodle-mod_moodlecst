@@ -9,8 +9,9 @@ By default the db table is called "items" and capabilities are itemview and item
 You could alter those in install.xml / CRUDlib.php and access.php
 
 You will also need to 
-a) add a link to the CRUDs in tabs.php and
+a) add a link to the CRUDs.php in tabs.php and
 b) add the lang strings from CRUDlang.php to the main lang file
+c) add includes for the CRUDlib.php and CRUDrenderer.php files to your main lib and renderer files.
 
 The forms for each of the item types will be the first things you will want to customize
 Backup and restore is not implemented yet.

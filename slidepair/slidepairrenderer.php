@@ -42,13 +42,21 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
         $output = $this->output->heading(get_string("whatdonow", "moodlecst"), 3);
         $links = array();
 
-        $addtextchoiceitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
+		$addtextchoiceitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
 			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE));
         $links[] = html_writer::link($addtextchoiceitemurl, get_string('addtextchoiceitem', 'moodlecst'));
+		
+        $addpicturechoiceitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
+			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE));
+        $links[] = html_writer::link($addpicturechoiceitemurl, get_string('addpicturechoiceitem', 'moodlecst'));
         
         $addaudiochoiceitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
 			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_AUDIOCHOICE));
         $links[] = html_writer::link($addaudiochoiceitemurl, get_string('addaudiochoiceitem', 'moodlecst'));
+		
+		$addtabooitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
+			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO));
+        $links[] = html_writer::link($addtabooitemurl, get_string('addtabooitem', 'moodlecst'));
 		
 		
         return $this->output->box($output.'<p>'.implode('</p><p>', $links).'</p>', 'generalbox firstpageoptions');
@@ -88,11 +96,17 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 		
 			$itemnamecell = new html_table_cell($item->name);	
 			switch($item->type){
-				case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
-					$itemtype = get_string('textchoice','moodlecst');
+				case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
+					$itemtype = get_string('picturechoice','moodlecst');
 					break;
 				case MOD_MOODLECST_SLIDEPAIR_TYPE_AUDIOCHOICE:
 					$itemtype = get_string('audiochoice','moodlecst');
+					break;
+				case MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO:
+					$itemtype = get_string('taboo','moodlecst');
+					break;
+				case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
+					$itemtype = get_string('textchoice','moodlecst');
 					break;
 				default:
 			} 
@@ -119,5 +133,4 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 		return html_writer::table($table);
 
 	}
-
 }

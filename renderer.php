@@ -26,9 +26,6 @@ require_once('slidepair/slidepairrenderer.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_moodlecst_renderer extends plugin_renderer_base {
-
-
-
 		  /**
      * Returns the header for the module
      *
@@ -81,6 +78,54 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
       }
 
 
+	public function fetch_newsessionlink($cm, $isteacher, $mode,$caption) {
+		global $CFG,$USER;
+		$activityid = $cm->id;
+		$sesskey = $USER->sesskey;
+		$userid = $USER->id;
+		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'channel'=>1,'sessionid'=>1,'mode'=>$mode);
+		if($isteacher){
+			$urlparams['seat'] = 'teacher';
+			$urlparams['raterid'] = $userid;			
+		}else{
+			$urlparams['seat'] = 'student';
+		}
+		$link = new moodle_url($CFG->wwwroot . ':8082',$urlparams);
+		//$ret =  html_writer::link($link, get_string('gotocst',MOD_MOODLECST_LANG));
+		$button = html_writer::tag('button',$caption, array('class'=>'btn btn-large btn-primary ' . MOD_MOODLECST_CLASS . '_actionbutton'));
+		$popupparams = array('height'=>800,'width'=>1050);
+		$popupaction = new popup_action('click', $link,'popup',$popupparams);
+		$popupbutton =  $this->output->action_link($link, $button,$popupaction);
+		$ret= html_writer::div($popupbutton ,MOD_MOODLECST_CLASS . '_buttoncontainer');
+		return $ret;
+    }
+	  
+	public function show_student_newsessionlink($cm,$mode,$caption){
+        return $this->fetch_newsessionlink($cm,false,$mode,$caption);
+    }
+	
+	public function show_teacher_newsessionlink($cm,$mode, $caption){
+        return $this->fetch_newsessionlink($cm,true,$mode,$caption);
+    }
+	
+	/**
+     * Show the start button on view/preview page
+     */
+	 /*
+	  public function show_popupbutton($caption,$url) {
+		
+		// print's a popup link to your custom page
+		$link = new moodle_url('/mod/tquiz/preview.php',array('questionid'=>$questionid, 'tquizid'=>$tquizid));
+		return  $this->output->action_link($link, get_string('preview','mod_tquiz'), 
+			new popup_action('click', $link));
+		
+		$bigbuttonhtml = html_writer::tag('button',$caption,  
+				array('type'=>'button','class'=>'mod_moodlecst_bigbutton yui3-button mod_moodlecst_start_button',
+				'id'=>'mod_moodlecst_start_button','onclick'=>'M.mod_englishcentral.playerhelper.startfinish()'));	
+		return html_writer::tag('div', $bigbuttonhtml, array('class'=>'mod_moodlecst_bigbutton_start_container','id'=>'mod_moodlecst_bigbutton_start_container'));
+				
+	 }
+	 */
     /**
      *
      */
@@ -238,4 +283,208 @@ class mod_moodlecst_report_renderer extends plugin_renderer_base {
 	}
 
 }
+
+/**
+ * A custom renderer class that outputs JSON representation for CST
+ *
+ * @package mod_moodlecst
+ * @copyright COPYRIGHTNOTICE
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class mod_moodlecst_json_renderer extends plugin_renderer_base {
+
+
+	/**
+	 * Return JSON that nodejs client is expecting regarding quiz
+	 * @param lesson $lesson
+	 * @return string
+	 */
+	 public function render_results_json($results){
+		$result = new stdClass;
+		$status ='success';
+		$progress = $results;
+		$result->status=$status;
+		$result->progess=$progress;
+		return json_encode($result);
+	 }
+
+	 /**
+	 * Return HTML to display add first page links
+	 * @param lesson $lesson
+	 * @return string
+	 */
+	 public function render_sessions_json($title,$context,$items) {
+		$sessions = new stdClass;
+		$tasks = array();
+		//fetch item ids
+		foreach($items as $item){
+				$tasks[] =  $this->fetch_item_id($item->type, $item);
+		}
+		
+		//loop through labels
+		$sessionlabels = array('1','2','3','4','5','6');
+		foreach($sessionlabels as $label){
+			shuffle($tasks);
+			$sessions->{$label}=$tasks;
+		}
+		return json_encode($sessions);
+	 }
+	
+	/**
+	 * Return user details (name + picurl) in json
+	 * @param type (mydetails or partnerdetails
+	 * @param object $user the user db etry whose details we want
+	 * @return string
+	 */
+	 public function render_userdetails_json($type,$page, $user=false){
+		$ret = new stdClass;
+		$ret->type = $type;
+		
+		//if no user, return empty data
+		if(!$user){
+			$ret->userName = 'unknown';
+			$ret->userPic = '';
+		//if user, fetch name and pic url
+		}else{		
+			//username
+			$ret->userName = strip_tags(fullname($user));
+			
+			//userpic
+			$up =new user_picture($user);
+			$up->size=100;
+			$picurl = $up->get_url($page);
+			$ret->userPic =strip_tags($picurl->__toString());
+		}
+		
+		//return data
+		return json_encode($ret);
+	 
+	 }
+	
+	
+	/**
+	 * Return HTML to display add first page links
+	 * @param lesson $lesson
+	 * @return string
+	 */
+	 public function render_tasks_json($title,$context,$items) {
+		
+		//build the test object
+		$test = new stdClass;
+		$test->id = 1;
+		$test->title = $title;
+		
+		//process our tasks
+		$tasks = array();
+		foreach($items as $item){
+			$tasks[] = $this->render_slidepair($context,$item);
+		}
+		$test->tasks = $tasks;
+		
+		//build our return object
+		$ret = new stdClass;
+		$ret->test = $test;
+		
+		return json_encode($ret);
+	 }
+	 
+	 public function fetch_item_id($type, $item){
+		$return ='unknown';
+		switch($item->type){
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
+				//$return = 'picture_' . $item->id;
+				$return  = $item->id;
+				break;
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
+				//$return = 'listen_' . $item->id;
+				$return  = $item->id;
+				break;
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO:
+				//$return = 'taboo_' . $item->id;
+				$return  = $item->id;
+				break;
+		}
+		return $return;
+	 }
+
+		 /**
+	 * Return HTML to display add first page links
+	 * @param lesson $lesson
+	 * @return string
+	 */
+	 public function render_slidepair($context,$item) {
+		$theitem = new stdClass;
+		$theitem->id = $this->fetch_item_id($item->type, $item);
+
+		switch($item->type){
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
+				$theitem->type='Productive';
+				$theitem->subType='Picture';
+				$theitem->content=$this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA,$item);
+				$answers = array();
+				for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXANSWERS+1;$x++){
+					$theanswer= new stdClass;
+					$theanswer->id = $x;
+					$theanswer->img = $this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $x,$item);
+					$theanswer->correct = ($x==$item->{MOD_MOODLECST_SLIDEPAIR_CORRECTANSWER});
+					$answers[] = $theanswer;
+				}
+				$theitem->answers = $answers;
+				break;
+			
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
+				$theitem->type='Productive';
+				$theitem->subType='Listen';
+				$theitem->content=$this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA,$item);
+				$answers = array();
+				for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXANSWERS+1;$x++){
+					$theanswer= new stdClass;
+					$theanswer->id = $x;
+					$theanswer->text = $item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $x};
+					$theanswer->correct = ($x==$item->{MOD_MOODLECST_SLIDEPAIR_CORRECTANSWER});
+					$answers[] = $theanswer;
+				}
+				$theitem->answers = $answers;
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO:
+				$theitem->type='Productive';
+				$theitem->subType='Taboo';
+				$theitem->content=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION};
+				$answers = array();
+				$theanswer= new stdClass;
+				$theanswer->id = 1;
+				$theanswer->text = 'Done';
+				$answers[] = $theanswer;
+				$theitem->answers = $answers;
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_AUDIOCHOICE:
+				break;
+				
+		}
+		return $theitem;
+	 }
+	 
+	 function fetch_media_url($context,$filearea,$item){
+			//get question audio div (not so easy)			
+			$fs = get_file_storage();
+			$files = $fs->get_area_files($context->id, 'mod_moodlecst',$filearea,$item->id);
+			foreach ($files as $file) {
+				$filename = $file->get_filename();
+				if($filename=='.'){continue;}
+				$filepath = '/';
+				$mediaurl = moodle_url::make_pluginfile_url($context->id,'mod_moodlecst',
+						$filearea, $item->id,
+						$filepath, $filename);
+				return $mediaurl->__toString();
+				
+			}
+			//We always take the first file and if we have none, thats not good.
+			return "$context->id pp $filearea pp $item->id";
+	 }
+
+
+}
+
 

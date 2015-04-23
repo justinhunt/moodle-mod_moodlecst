@@ -4,8 +4,12 @@
 	/*float: left;*/
 }
 
-.mod_moodlecst_actionbuttons {
+.mod_moodlecst_buttoncontainer{
 	display: flex;
-	float: right;
+	float: center;
+	margin-left: 30%;
+	margin-right: 30%;
 }
+
+.mod_moodlecst_actionbutton{}
 

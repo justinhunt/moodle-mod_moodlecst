@@ -138,5 +138,29 @@ if($moduleinstance->maxattempts > 0){
 echo $renderer->show_something($someadminsetting);
 echo $renderer->show_something($someinstancesetting);
 
+//Set the link according to our node
+switch($moduleinstance->mode){
+	case MOD_MOODLECST_MODESTUDENTSTUDENT:
+		$mode="studentstudent";
+		break;
+	case MOD_MOODLECST_MODETEACHERSTUDENT:
+	default:
+		$mode="teacherstudent";
+}
+
+//if we are teacher we may use the teacher link
+if(has_capability('mod/moodlecst:preview',$modulecontext)){
+	$caption = get_string('gotocstasteacher',MOD_MOODLECST_LANG);
+	echo $renderer->show_teacher_newsessionlink($cm,$mode,$caption);
+	echo '<br />';
+	echo '<br />';
+	$caption = get_string('gotocstasstudent',MOD_MOODLECST_LANG);
+	echo $renderer->show_student_newsessionlink($cm,$mode,$caption);
+}else{
+	//always show a studnet link, just in case
+	$caption = get_string('gotocst',MOD_MOODLECST_LANG);
+	echo $renderer->show_student_newsessionlink($cm,$mode,$caption);
+}
+
 // Finish the page
 echo $renderer->footer();

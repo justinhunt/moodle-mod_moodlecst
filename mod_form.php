@@ -61,13 +61,11 @@ class mod_moodlecst_mod_form extends moodleform_mod {
         // Adding the standard "intro" and "introformat" fields
         $this->add_intro_editor();
 
-        //-------------------------------------------------------------------------------
-        // Adding the rest of moodlecst settings, spreeading all them into this fieldset
-        // or adding more fieldsets ('header' elements) if needed for better logic
-        $mform->addElement('static', 'label1', 'moodlecstsettings', get_string('moodlecstsettings', MOD_MOODLECST_LANG));
-        $mform->addElement('text', 'someinstancesetting', get_string('someinstancesetting', MOD_MOODLECST_LANG), array('size'=>'64'));
-        $mform->addRule('someinstancesetting', null, 'required', null, 'client');
-        $mform->setType('someinstancesetting', PARAM_TEXT);
+		
+		//mode options
+        $modeoptions = array(MOD_MOODLECST_MODETEACHERSTUDENT => get_string('teacherstudent',MOD_MOODLECST_LANG),
+                            MOD_MOODLECST_MODESTUDENTSTUDENT => get_string('studentstudent', MOD_MOODLECST_LANG));
+        $mform->addElement('select', 'mode', get_string('modeoptions', MOD_MOODLECST_LANG), $modeoptions);
 		
 		//attempts
         $attemptoptions = array(0 => get_string('unlimited', MOD_MOODLECST_LANG),
@@ -81,6 +79,8 @@ class mod_moodlecst_mod_form extends moodleform_mod {
                             MOD_MOODLECST_GRADEAVERAGE => get_string('gradeaverage', MOD_MOODLECST_LANG),
 							MOD_MOODLECST_GRADENONE => get_string('gradenone', MOD_MOODLECST_LANG));
         $mform->addElement('select', 'gradeoptions', get_string('gradeoptions', MOD_MOODLECST_LANG), $gradeoptions);
+		
+		
 
         //-------------------------------------------------------------------------------
         // add standard elements, common to all modules
