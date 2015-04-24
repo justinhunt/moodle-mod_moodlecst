@@ -92,8 +92,6 @@ $jsmodule = array(
 );
 //here we set up any info we need to pass into javascript
 $opts =Array();
-$opts['someinstancesetting'] = $someinstancesetting;
-
 
 //this inits the M.mod_moodlecst thingy, after the page has loaded.
 $PAGE->requires->js_init_call('M.mod_moodlecst.helper.init', array($opts),false,$jsmodule);
