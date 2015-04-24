@@ -94,6 +94,7 @@ $attemptdata = new stdClass;
 $attemptdata->course =$course->id;
 $attemptdata->userid =$USER->id;
 $attemptdata->moodlecstid =$cm->instance;
+$attemptdata->mode =$moduleinstance->mode;
 $attemptdata->status =0;
 $attemptdata->sessionscore =0;
 $attemptdata->timecreated =time();

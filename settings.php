@@ -31,7 +31,7 @@ if ($ADMIN->fulltree) {
 
 
 
-	  $settings->add(new admin_setting_configtext('mod_moodlecst/someadminsetting',
-        get_string('someadminsetting', 'moodlecst'), get_string('someadminsetting_details', MOD_MOODLECST_LANG), 'default text', PARAM_TEXT));
+	  $settings->add(new admin_setting_configtext('mod_moodlecst/nodejsport',
+        get_string('nodejsport', 'moodlecst'), get_string('nodejsport_details', MOD_MOODLECST_LANG), 8082, PARAM_INT));
 
 }

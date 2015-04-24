@@ -50,20 +50,25 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE));
         $links[] = html_writer::link($addpicturechoiceitemurl, get_string('addpicturechoiceitem', 'moodlecst'));
         
+		//for now we can this. Later lets fix it up.
         $addaudiochoiceitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
 			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_AUDIOCHOICE));
-        $links[] = html_writer::link($addaudiochoiceitemurl, get_string('addaudiochoiceitem', 'moodlecst'));
+        //$links[] = html_writer::link($addaudiochoiceitemurl, get_string('addaudiochoiceitem', 'moodlecst'));
 		
 		$addtabooitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
 			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO));
         $links[] = html_writer::link($addtabooitemurl, get_string('addtabooitem', 'moodlecst'));
+		
+		$addtranslateitemurl = new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php',
+			array('id'=>$this->page->cm->id, 'itemid'=>$itemid, 'type'=>MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE));
+        $links[] = html_writer::link($addtranslateitemurl, get_string('addtranslateitem', 'moodlecst'));
 		
 		
         return $this->output->box($output.'<p>'.implode('</p><p>', $links).'</p>', 'generalbox firstpageoptions');
     }
 	
 	/**
-	 * Return the html table of homeworks for a group  / course
+	 * Return the html table of items
 	 * @param array homework objects
 	 * @param integer $courseid
 	 * @return string html of table
@@ -107,6 +112,9 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 					break;
 				case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
 					$itemtype = get_string('textchoice','moodlecst');
+					break;
+				case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
+					$itemtype = get_string('translate','moodlecst');
 					break;
 				default:
 			} 

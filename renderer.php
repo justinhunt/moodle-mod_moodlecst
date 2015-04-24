@@ -90,7 +90,8 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 		}else{
 			$urlparams['seat'] = 'student';
 		}
-		$link = new moodle_url($CFG->wwwroot . ':8082',$urlparams);
+		$config = get_config('mod_moodlecst');
+		$link = new moodle_url($CFG->wwwroot . ':' . $config->nodejsport,$urlparams);
 		//$ret =  html_writer::link($link, get_string('gotocst',MOD_MOODLECST_LANG));
 		$button = html_writer::tag('button',$caption, array('class'=>'btn btn-large btn-primary ' . MOD_MOODLECST_CLASS . '_actionbutton'));
 		$popupparams = array('height'=>800,'width'=>1050);
@@ -403,6 +404,10 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				//$return = 'taboo_' . $item->id;
 				$return  = $item->id;
 				break;
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
+				//$return = 'taboo_' . $item->id;
+				$return  = $item->id;
+				break;
 		}
 		return $return;
 	 }
@@ -455,6 +460,18 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				$theanswer= new stdClass;
 				$theanswer->id = 1;
 				$theanswer->text = 'Done';
+				$answers[] = $theanswer;
+				$theitem->answers = $answers;
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
+				$theitem->type='Productive';
+				$theitem->subType='Translate';
+				$theitem->content=array('source'=>$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION},'target'=>$item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'});
+				$answers = array();
+				$theanswer= new stdClass;
+				$theanswer->id = 1;
+				$theanswer->text = $item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'};
 				$answers[] = $theanswer;
 				$theitem->answers = $answers;
 				break;

@@ -343,7 +343,7 @@ abstract class moodlecst_add_item_form_base extends moodleform {
     }
 }
 
-//this is the standard form for creating a multi choice item
+//this is the standard form for creating a text choice item with audio prompt
 class moodlecst_add_item_form_textchoice extends moodlecst_add_item_form_base {
 
     public $type = 'textchoice';
@@ -354,8 +354,8 @@ class moodlecst_add_item_form_textchoice extends moodlecst_add_item_form_base {
 		
 		$this->add_audio_item_upload(get_string('audioitemfile','moodlecst'));
 		$this->add_shuffleanswers();
-		$this->add_editor_answersinrow();
-		$this->add_editor_answerwidth();
+		//$this->add_editor_answersinrow();
+		//$this->add_editor_answerwidth();
 		
         for ($i = 1; $i <= MOD_MOODLECST_SLIDEPAIR_MAXANSWERS; $i++) {
             $this->_form->addElement('header', 'answertitle'.$i, get_string('answer').' '. $i);
@@ -391,7 +391,7 @@ class moodlecst_add_item_form_audiochoice extends moodlecst_add_item_form_base {
 }
 
 
-//this is the standard form for creating a multi choice item
+//this is the standard form for creating a taboo item
 class moodlecst_add_item_form_taboo extends moodlecst_add_item_form_base {
 
     public $type = 'taboo';
@@ -400,6 +400,20 @@ class moodlecst_add_item_form_taboo extends moodlecst_add_item_form_base {
     public function custom_definition() {
 	
 
+    }
+}
+
+//this is the standard form for creating a translate item
+class moodlecst_add_item_form_translate extends moodlecst_add_item_form_base {
+
+    public $type = 'translate';
+    public $typestring = 'translate';
+
+    public function custom_definition() {
+            $this->_form->addElement('header', 'correcttranslationtitle', get_string('correcttranslationtitle','moodlecst'));
+            $required = true;
+            $this->add_editor_answer(1, null, $required);
+			$this->_form->setExpanded('correcttranslationtitle');
     }
 }
 

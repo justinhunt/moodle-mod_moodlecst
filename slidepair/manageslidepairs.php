@@ -115,6 +115,12 @@ switch($type){
 			'filemanageroptions'=>$filemanageroptions)
 		);
 		break;
+	case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
+		$mform = new moodlecst_add_item_form_translate(null,
+			array('editoroptions'=>$editoroptions, 
+			'filemanageroptions'=>$filemanageroptions)
+		);
+		break;
 	case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
 		$mform = new moodlecst_add_item_form_textchoice(null,
 			array('editoroptions'=>$editoroptions, 
@@ -171,7 +177,11 @@ if ($data = $mform->get_data()) {
 						$theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i}='';
 						$theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i . 'format'}=0;
 					}
-				
+					break;
+				case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
+					$i=1;
+					$theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i}='';
+					break;
 			}
 			
 			if (!$theitem->id = $DB->insert_record(MOD_MOODLECST_SLIDEPAIR_TABLE,$theitem)){
@@ -252,6 +262,19 @@ if ($data = $mform->get_data()) {
 				//$theitem->answercount=$answercount;			
 				break;
 				
+			
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
+
+					//saving files from text editor
+					$i=1;
+					$data = file_postupdate_standard_editor( $data, MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i, $editoroptions, $context,
+                                        'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_TEXTANSWER_FILEAREA.$i, $theitem->id);
+					$theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i} = $data->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i} ;
+					$theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i .'format'} = $data->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i .'format'};	
+					if(trim($theitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i}) !=''){
+						$answercount=$i;
+					}
+					break;
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO:
 			default:
 				break;
@@ -335,6 +358,13 @@ if ($edit) {
 				$data->{MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER . $i} = $draftitemid;
 			
 			}
+			
+			break;
+		case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:			
+			//prepare answer areas
+				//text editor
+				$i=1;
+				$data = file_prepare_standard_editor($data, MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $i, $editoroptions, $context, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_TEXTANSWER_FILEAREA . $i,  $data->itemid);
 			
 			break;
 		default:
