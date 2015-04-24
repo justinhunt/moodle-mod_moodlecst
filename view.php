@@ -80,12 +80,6 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 $PAGE->set_pagelayout('course');
 
-	//Get an admin settings 
-	$config = get_config(MOD_MOODLECST_FRANKY);
-  	$someadminsetting = $config->someadminsetting;
-
-	//Get an instance setting
-	$someinstancesetting = $moduleinstance->someinstancesetting;
 
 
 //get our javascript all ready to go
