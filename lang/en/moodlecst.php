@@ -29,15 +29,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'moodlecst';
-$string['modulenameplural'] = 'moodlecsts';
-$string['modulename_help'] = 'moodlecst help';
+$string['modulename'] = 'Moodle CST';
+$string['modulenameplural'] = 'Moodle CSTs';
+$string['modulename_help'] = 'Moodle CST help';
 $string['moodlecstfieldset'] = 'Custom example fieldset';
-$string['moodlecstname'] = 'moodlecst name';
-$string['moodlecstname_help'] = 'This is the content of the help tooltip associated with the moodlecstname field. Markdown syntax is supported.';
-$string['moodlecst'] = 'moodlecst';
-$string['pluginadministration'] = 'moodlecst Administration';
-$string['pluginname'] = 'moodlecst Activity';
+$string['moodlecstname'] = 'Moodle CST name';
+$string['moodlecstname_help'] = 'This is the content of the help tooltip associated with the Moodle CST name field. Markdown syntax is supported.';
+$string['moodlecst'] = 'Moodle CST';
+$string['pluginadministration'] = 'Moodle CST Administration';
+$string['pluginname'] = 'Moodle CST Activity';
 $string['someadminsetting'] = 'Some Admin Setting';
 $string['someadminsetting_details'] = 'More info about Some Admin Setting';
 $string['someinstancesetting'] = 'Some Instance Setting';
@@ -133,3 +133,13 @@ $string['teacherstudent'] = 'Teacher/Student';
 $string['studentstudent'] = 'Student/Student';
 $string['nodejsport'] = 'Node.js Port';
 $string['nodejsport_details'] = 'The port that Node.js will listen on for Moodle CST activities.';
+$string['nodeserver'] = 'Node Server';
+$string['nodeserverstart'] = 'Start Node JS Server';
+$string['nodeserverforcerestart'] = 'Forcefully Restart Node JS Server';
+$string['nodeserverstop'] = 'Stop Node JS Server';
+$string['nodeserveralreadyrunning'] = 'Node JS server is *already* running';
+$string['nodeservernotalreadyrunning'] = 'Node JS server is *already not* running';
+$string['nodeserverrunning'] = 'Node JS server is running';
+$string['nodeservernotrunning'] = 'Node JS server is not running';
+$string['nodejsapppath'] = 'Node JS App Path';
+$string['nodejsapppath_details'] = 'The path to the Node JS application. If it starts with / , it will be an absolute path. (Sorry Windows users ...for now).  Otherwise it will be a relative path from the MoodleCST plugin directory.';

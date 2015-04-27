@@ -49,6 +49,7 @@ $tabs = $row = $inactive = $activated = array();
 $row[] = new tabobject('view', "$CFG->wwwroot/mod/moodlecst/view.php?id=$cm->id", get_string('view', MOD_MOODLECST_LANG), get_string('preview', MOD_MOODLECST_LANG, format_string($moduleinstance->name)));
 $row[] = new tabobject('slidepairs', "$CFG->wwwroot/mod/moodlecst/slidepair/slidepairs.php?id=$cm->id", get_string('slidepairs', MOD_MOODLECST_LANG), get_string('manageslidepairs', MOD_MOODLECST_LANG));
 $row[] = new tabobject('reports', "$CFG->wwwroot/mod/moodlecst/reports.php?id=$cm->id", get_string('reports', MOD_MOODLECST_LANG), get_string('viewreports', MOD_MOODLECST_LANG));
+$row[] = new tabobject('nodeserver', "$CFG->wwwroot/mod/moodlecst/nodeserver.php?id=$cm->id", get_string('nodeserver', MOD_MOODLECST_LANG), get_string('nodeserver', MOD_MOODLECST_LANG));
 
 $tabs[] = $row;
 

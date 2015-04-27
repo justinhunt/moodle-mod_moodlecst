@@ -70,6 +70,25 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
         return $output;
     }
 	
+	public function show_node_server_button($cm,$action,$caption){
+		//convert formdata to array
+		$formdata = array();
+		$formdata['id']=$cm->id;
+		$formdata['action']=$action;
+		$thebutton = new single_button(
+			new moodle_url(MOD_MOODLECST_URL . '/nodeserver.php',$formdata), 
+			$caption, 'get');
+
+		return html_writer::div( $this->render($thebutton),MOD_MOODLECST_CLASS  . '_actionbuttons');
+	}
+	
+	public function show_server_log($logdata){
+		$ta = html_writer::tag('textarea', s($logdata),
+            array('readonly' => 'readonly', 'wrap' => 'virtual', 'rows' => '20', 'cols' => '100'));
+
+		return html_writer::div( $ta,MOD_MOODLECST_CLASS  . '_nodeserverlog');
+	}
+	
 	/**
      * Return HTML to display limited header
      */
@@ -109,24 +128,7 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
         return $this->fetch_newsessionlink($cm,true,$mode,$caption);
     }
 	
-	/**
-     * Show the start button on view/preview page
-     */
-	 /*
-	  public function show_popupbutton($caption,$url) {
-		
-		// print's a popup link to your custom page
-		$link = new moodle_url('/mod/tquiz/preview.php',array('questionid'=>$questionid, 'tquizid'=>$tquizid));
-		return  $this->output->action_link($link, get_string('preview','mod_tquiz'), 
-			new popup_action('click', $link));
-		
-		$bigbuttonhtml = html_writer::tag('button',$caption,  
-				array('type'=>'button','class'=>'mod_moodlecst_bigbutton yui3-button mod_moodlecst_start_button',
-				'id'=>'mod_moodlecst_start_button','onclick'=>'M.mod_englishcentral.playerhelper.startfinish()'));	
-		return html_writer::tag('div', $bigbuttonhtml, array('class'=>'mod_moodlecst_bigbutton_start_container','id'=>'mod_moodlecst_bigbutton_start_container'));
-				
-	 }
-	 */
+
     /**
      *
      */

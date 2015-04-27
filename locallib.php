@@ -28,12 +28,79 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Does something really useful with the passed things
- *
- * @param array $things
- * @return object
- */
-//function moodlecst_do_something_useful(array $things) {
-//    return new stdClass();
-//}
+class nodejshelper{ 
+
+const NODEPID = 'nodepid';
+const NODELOG = 'nodeout';
+const NODE_ACTION_NONE = 0;
+const NODE_ACTION_START = 1;
+const NODE_ACTION_STOP = 2;
+const NODE_ACTION_FORCERESTART = 3;
+
+	/**
+	 * Start the Node JS server
+	 *
+	 */
+public static function start_server($app_path) {
+		$node_pid = intval(file_get_contents(self::NODEPID));
+		if($node_pid > 0) {
+			return false;
+		}
+		$file = escapeshellarg($app_path);
+		$node_pid = exec("node $file >nodeout 2>&1 & echo $!");
+		$started= $node_pid > 0;
+		file_put_contents(self::NODEPID, $node_pid, LOCK_EX);
+		return true;
+	}
+
+		/**
+	 * Start the Node JS server
+	 *
+	 */
+public static function force_restart_server($app_path) {
+		self::stop_server();
+		file_put_contents(self::NODEPID, '', LOCK_EX);
+		file_put_contents(self::NODELOG, '', LOCK_EX);
+		self::start_server($app_path);
+		return true;
+	}
+
+	/**
+	 * Stop the Node JS server
+	 *
+	 */
+public static function stop_server() {
+
+		$node_pid = intval(file_get_contents(self::NODEPID));
+		if($node_pid === 0) {
+			return false;
+		}
+		$ret = -1;
+		passthru("kill $node_pid", $ret);
+		$stopped =  $ret === 0;
+		file_put_contents(self::NODEPID, '', LOCK_EX);
+		file_put_contents(self::NODELOG, '', LOCK_EX);
+		return $stopped;
+	}
+	
+	/**
+	 * Fetch Node JS server log
+	 *
+	 */
+public static function fetch_log() {
+
+		$node_log = file_get_contents(self::NODELOG);
+		return $node_log;
+	}
+
+	/**
+	 * Is the Node JS server running
+	 *
+	 */
+ public static function is_server_running() {
+		$node_pid = intval(file_get_contents(self::NODEPID));
+		return ($node_pid !== 0);
+	}
+
+}
+

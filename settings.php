@@ -31,7 +31,11 @@ if ($ADMIN->fulltree) {
 
 
 
-	  $settings->add(new admin_setting_configtext('mod_moodlecst/nodejsport',
+	 $settings->add(new admin_setting_configtext('mod_moodlecst/nodejsport',
         get_string('nodejsport', 'moodlecst'), get_string('nodejsport_details', MOD_MOODLECST_LANG), 8082, PARAM_INT));
+
+		
+	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsapppath',
+        get_string('nodejsapppath', 'moodlecst'), get_string('nodejsapppath_details', MOD_MOODLECST_LANG), 'cst/app.js' , PARAM_RAW));
 
 }
