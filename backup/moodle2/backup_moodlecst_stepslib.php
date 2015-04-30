@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/moodlecst/lib.php');
+ require_once($CFG->dirroot . '/mod/moodlecst/slidepair/slidepairlib.php');
 
 /**
  * Defines the complete webquest structure for backup, with file and id annotations
@@ -51,29 +52,50 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
         // root element describing moodlecst instance
         $oneactivity = new backup_nested_element(MOD_MOODLECST_MODNAME, array('id'), array(
             'course','name','intro','introformat','someinstancesetting','gradeoptions','maxattempts','mingrade',
-			'timecreated','timemodified'
+			'mode','timecreated','timemodified'
 			));
+			
+		// slidepair	
+		$slidepairs = new backup_nested_element('slidepairs');
+		$slidepair = new backup_nested_element('slidepair', array('id'),array(
+			MOD_MOODLECST_MODNAME, 'name', 'type','visible','itemtext', 'itemformat','itemaudiofname', 'answertext1', 'answertext1format','answertext2', 'answertext2format','answertext3', 'answertext3format','answertext4', 'answertext4format',
+		  'correctanswer','shuffleanswers','answercount','answersinrow','answerwidth','createdby','modifiedby','timecreated','timemodified'
+		));
 		
 		//attempts
         $attempts = new backup_nested_element('attempts');
         $attempt = new backup_nested_element('attempt', array('id'),array(
-			MOD_MOODLECST_MODNAME ."id","course","userid","status","sessionscore","timecreated","timemodified"
+			MOD_MOODLECST_MODNAME ."id","course","userid","status","mode","sessionscore","timecreated","timemodified"
+		));
+		
+		//items
+        $items = new backup_nested_element('items');
+        $item = new backup_nested_element('item', array('id'),array(
+			MOD_MOODLECST_MODNAME ."id","course","userid","attemptid","partnerid","slidepairid","sessionid","consent","correct","duration","timecreated","timemodified"
 		));
 
 		
 		// Build the tree.
+		$oneactivity->add_child($slidepairs);
+		$slidepairs->add_child($slidepair);
         $oneactivity->add_child($attempts);
         $attempts->add_child($attempt);
+		$attempt->add_child($items);
+		$items->add_child($item);
 		
 
 
         // Define sources.
         $oneactivity->set_source_table(MOD_MOODLECST_TABLE, array('id' => backup::VAR_ACTIVITYID));
+		$slidepair->set_source_table(MOD_MOODLECST_SLIDEPAIR_TABLE,
+                                        array(MOD_MOODLECST_MODNAME => backup::VAR_PARENTID));
 
         //sources if including user info
         if ($userinfo) {
-			$attempt->set_source_table(MOD_MOODLECST_USERTABLE
+			$attempt->set_source_table(MOD_MOODLECST_ATTEMPTTABLE,
 											array(MOD_MOODLECST_MODNAME . 'id' => backup::VAR_PARENTID));
+			$item->set_source_table(MOD_MOODLECST_ATTEMPTITEMTABLE,
+											array('attemptid' => backup::VAR_PARENTID));
         }
 
         // Define id annotations.
@@ -83,6 +105,14 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
         // Define file annotations.
         // intro file area has 0 itemid.
         $oneactivity->annotate_files(MOD_MOODLECST_FRANKY, 'intro', null);
+		
+		//other file areas use moodlecstid
+		$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTQUESTION_FILEAREA, 'id');
+		$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOQUESTION_FILEAREA, 'id');
+		for($i=1;$i<5;$i++){
+			$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTANSWER_FILEAREA.$i, 'id');
+			$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOANSWER_FILEAREA.$i, 'id');
+		}
 
         // Return the root element (choice), wrapped into standard activity structure.
         return $this->prepare_activity_structure($oneactivity);

@@ -467,7 +467,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				break;
 				
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
-				$theitem->type='Productive';
+				$theitem->type='Receptive';
 				$theitem->subType='Translate';
 				$theitem->content=array('source'=>$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION},'target'=>$item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'});
 				$answers = array();

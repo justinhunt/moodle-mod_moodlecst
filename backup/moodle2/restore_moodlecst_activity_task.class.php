@@ -56,6 +56,9 @@ class restore_moodlecst_activity_task extends restore_activity_task {
         $contents[] = new restore_decode_content(MOD_MOODLECST_MODNAME,
                           array('intro'), MOD_MOODLECST_MODNAME);
 
+        $contents[] = new restore_decode_content(MOD_MOODLECST_SLIDEPAIR_TABLE,
+                          array('itemtext','answertext1','answertext2','answertext3','answertext4'), MOD_MOODLECST_SLIDEPAIR_TABLE);
+
         return $contents;
     }
 
@@ -66,8 +69,8 @@ class restore_moodlecst_activity_task extends restore_activity_task {
     static public function define_decode_rules() {
         $rules = array();
 
-        $rules[] = new restore_decode_rule('moodlecstVIEWBYID', '/mod/moodlecst/view.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('moodlecstINDEX', '/mod/moodlecst/index.php?id=$1', 'course');
+        $rules[] = new restore_decode_rule('MOODLECSTVIEWBYID', '/mod/moodlecst/view.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('MOODLECSTINDEX', '/mod/moodlecst/index.php?id=$1', 'course');
 
         return $rules;
 

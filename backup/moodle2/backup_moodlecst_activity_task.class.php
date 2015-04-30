@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines {@link backup_englishcentral_activity_task} class
+ * Defines {@link backup_moodlecst_activity_task} class
  *
  * @package     mod_moodlecst
  * @category    backup
@@ -59,11 +59,11 @@ class backup_moodlecst_activity_task extends backup_activity_task {
 
         // Link to the list of modules
         $search = "/(" . $base . "\/mod\/moodlecst\/index.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@ENGLISHCENTRALINDEX*$2@$', $content);
+        $content = preg_replace($search, '$@MOODLECSTINDEX*$2@$', $content);
 
         //Link to view.pphp by moduleid
         $search = "/(" . $base . "\/mod\/moodlecst\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@moodlecstVIEWBYID*$2@$', $content);
+        $content= preg_replace($search, '$@MOODLECSTVIEWBYID*$2@$', $content);
 
         return $content;
     }
