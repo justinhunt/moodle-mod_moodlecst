@@ -47,7 +47,7 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
         $oneactivity = new restore_path_element(MOD_MOODLECST_MODNAME, '/activity/moodlecst');
         $paths[] = $oneactivity;
 		
-		//questions
+		//slidepairs
 		$slidepairs = new restore_path_element(MOD_MOODLECST_SLIDEPAIR_TABLE,
                                             '/activity/moodlecst/slidepairs/slidepair');
 		$paths[] = $slidepairs;
@@ -106,7 +106,7 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
         $data->{MOD_MOODLECST_MODNAME} = $this->get_new_parentid(MOD_MOODLECST_MODNAME);
         $newslidepairid = $DB->insert_record(MOD_MOODLECST_SLIDEPAIR_TABLE, $data);
        $this->set_mapping(MOD_MOODLECST_SLIDEPAIR_TABLE, $oldid, $newslidepairid, true); // Mapping with files
-    }
+  }
 	
 	protected function process_moodlecst_attempts($data) {
         global $DB;
@@ -137,6 +137,7 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
     }
 	
     protected function after_execute() {
+
         // Add module related files, no need to match by itemname (just internally handled context)
         $this->add_related_files(MOD_MOODLECST_FRANKY, 'intro', null);
 
@@ -144,9 +145,9 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
 		$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTQUESTION_FILEAREA, MOD_MOODLECST_SLIDEPAIR_TABLE);
 		$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOQUESTION_FILEAREA, MOD_MOODLECST_SLIDEPAIR_TABLE);
 
-		//do answer areas
-		for($i=1;$i<=4;$i++){
-			$this->MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
+		//do answer areas 
+		for($i=1;$i<=5;$i++){
+			$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
 			$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
 		}
     }
