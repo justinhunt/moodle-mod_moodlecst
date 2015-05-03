@@ -80,7 +80,7 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
 		$slidepairs->add_child($slidepair);
         $oneactivity->add_child($attempts);
         $attempts->add_child($attempt);
-		$attempt->add_child($items);
+		$oneactivity->add_child($items);
 		$items->add_child($item);
 		
 
@@ -100,6 +100,7 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
 
         // Define id annotations.
         $attempt->annotate_ids('user', 'userid');
+        $item->annotate_ids('user', 'userid');
 
 
         // Define file annotations.
@@ -107,11 +108,13 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
         $oneactivity->annotate_files(MOD_MOODLECST_FRANKY, 'intro', null);
 		
 		//other file areas use moodlecstid
-		$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTQUESTION_FILEAREA, 'id');
-		$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOQUESTION_FILEAREA, 'id');
-		for($i=1;$i<5;$i++){
-			$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTANSWER_FILEAREA.$i, 'id');
-			$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOANSWER_FILEAREA.$i, 'id');
+		$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION_FILEAREA, 'id');
+		$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA, 'id');
+		$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA, 'id');
+		for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
+			$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_TEXTANSWER_FILEAREA.$i, 'id');
+			$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA.$i, 'id');
+			$slidepair->annotate_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA.$i, 'id');
 		}
 
         // Return the root element (choice), wrapped into standard activity structure.

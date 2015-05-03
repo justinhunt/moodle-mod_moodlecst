@@ -235,7 +235,7 @@ if ($data = $mform->get_data()) {
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_AUDIOCHOICE:
 				// Save answer data
 				for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
-					file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER . $i}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . $i,
+					file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . $i}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA . $i,
 					   $theitem->id, $filemanageroptions);
 				}
 				
@@ -250,7 +250,7 @@ if ($data = $mform->get_data()) {
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
 				// Save answer data
 				for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
-					file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER . $i}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $i,
+					file_save_draft_area_files($data->{MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $i}, $context->id, 'mod_moodlecst', MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $i,
 					   $theitem->id, $filemanageroptions);
 				}
 				

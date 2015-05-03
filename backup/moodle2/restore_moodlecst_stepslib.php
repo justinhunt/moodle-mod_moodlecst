@@ -130,7 +130,7 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
 
         $data->timecreated = $this->apply_date_offset($data->timecreated);
 
-		
+		$data->{'moodlecstid'} = $this->get_new_parentid(MOD_MOODLECST_MODNAME);
         $data->{'attemptid'} = $this->get_new_parentid(MOD_MOODLECST_ATTEMPTTABLE);
         $newitemid = $DB->insert_record(MOD_MOODLECST_ATTEMPTITEMTABLE, $data);
        $this->set_mapping(MOD_MOODLECST_ATTEMPTITEMTABLE, $oldid, $newitemid, false); // Mapping without files
@@ -142,13 +142,16 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
         $this->add_related_files(MOD_MOODLECST_FRANKY, 'intro', null);
 
 		//do question areas
-		$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTQUESTION_FILEAREA, MOD_MOODLECST_SLIDEPAIR_TABLE);
-		$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOQUESTION_FILEAREA, MOD_MOODLECST_SLIDEPAIR_TABLE);
+		$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION_FILEAREA, MOD_MOODLECST_SLIDEPAIR_TABLE);
+		$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA, MOD_MOODLECST_SLIDEPAIR_TABLE);
+		$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA, MOD_MOODLECST_SLIDEPAIR_TABLE);
 
 		//do answer areas 
-		for($i=1;$i<=5;$i++){
-			$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_TEXTANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
-			$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_AUDIOANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
+		for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXANSWERS;$i++){
+			$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_TEXTANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
+			$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_AUDIOANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
+			$this->add_related_files(MOD_MOODLECST_FRANKY, MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA.$i, MOD_MOODLECST_SLIDEPAIR_TABLE);
+
 		}
     }
 }
