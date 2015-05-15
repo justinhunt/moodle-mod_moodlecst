@@ -426,7 +426,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		switch($item->type){
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
 				$theitem->type='Productive';
-				$theitem->subType='Picture';
+				$theitem->subType='picture';
 				$theitem->content=$this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA,$item);
 				$answers = array();
 				for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXANSWERS+1;$x++){
@@ -441,7 +441,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 			
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
 				$theitem->type='Productive';
-				$theitem->subType='Listen';
+				$theitem->subType='listen';
 				$theitem->content=$this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA,$item);
 				$answers = array();
 				for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXANSWERS+1;$x++){
@@ -456,7 +456,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_TABOO:
 				$theitem->type='Productive';
-				$theitem->subType='Taboo';
+				$theitem->subType='taboo';
 				$theitem->content=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION};
 				$answers = array();
 				$theanswer= new stdClass;
@@ -468,7 +468,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_TRANSLATE:
 				$theitem->type='Receptive';
-				$theitem->subType='Translate';
+				$theitem->subType='translate';
 				$theitem->content=array('source'=>$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION},'target'=>$item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'});
 				$answers = array();
 				$theanswer= new stdClass;
