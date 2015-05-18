@@ -67,11 +67,28 @@ class mod_moodlecst_mod_form extends moodleform_mod {
                             MOD_MOODLECST_MODESTUDENTSTUDENT => get_string('studentstudent', MOD_MOODLECST_LANG));
         $mform->addElement('select', 'mode', get_string('modeoptions', MOD_MOODLECST_LANG), $modeoptions);
 		
+		//Partner Mode
+		$partnermodeoptions = array(MOD_MOODLECST_PARTNERMODEMANUAL => get_string('manualpartners', MOD_MOODLECST_LANG),
+								MOD_MOODLECST_PARTNERMODEAUTO => get_string('autopartners',MOD_MOODLECST_LANG)
+								);
+        $mform->addElement('select', 'partnermode', get_string('partnermode', MOD_MOODLECST_LANG), $partnermodeoptions);
+		
 		//attempts
+		/*
         $attemptoptions = array(0 => get_string('unlimited', MOD_MOODLECST_LANG),
                             1 => '1',2 => '2',3 => '3',4 => '4',5 => '5',);
         $mform->addElement('select', 'maxattempts', get_string('maxattempts', MOD_MOODLECST_LANG), $attemptoptions);
-        
+        */
+		$mform->addElement('hidden', 'maxattempts');
+        $mform->setType('maxattempts', PARAM_INT);
+		$mform->setDefault('maxattempts', 0);
+		
+		//sessionsize
+		 $mform->addElement('text', 'sessionsize', get_string('sessionsize', MOD_MOODLECST_LANG), array('size'=>'32'));
+		 $mform->setType('sessionsize', PARAM_INT);
+		 $mform->setDefault('sessionsize', 5);
+		 
+		
         //grade options
         $gradeoptions = array(MOD_MOODLECST_GRADEHIGHEST => get_string('gradehighest',MOD_MOODLECST_LANG),
                             MOD_MOODLECST_GRADELOWEST => get_string('gradelowest', MOD_MOODLECST_LANG),
@@ -79,7 +96,6 @@ class mod_moodlecst_mod_form extends moodleform_mod {
                             MOD_MOODLECST_GRADEAVERAGE => get_string('gradeaverage', MOD_MOODLECST_LANG),
 							MOD_MOODLECST_GRADENONE => get_string('gradenone', MOD_MOODLECST_LANG));
         $mform->addElement('select', 'gradeoptions', get_string('gradeoptions', MOD_MOODLECST_LANG), $gradeoptions);
-		
 		
 
         //-------------------------------------------------------------------------------

@@ -141,24 +141,34 @@ function xmldb_moodlecst_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2007040101, 'moodlecst');
     }
 
-    // Third example, the next day, 2007/04/02 (with the trailing 00), some actions were performed to install.php,
-    // related with the module
-    if ($oldversion < 2007040200) {
+	
+	//added partnermode 
+    if ($oldversion < 2015051701) {
 
-        // insert here code to perform some actions (same as in install.php)
+        // Define field partnermode to be added to moodlecst
+        $table = new xmldb_table('moodlecst');
+        $field = new xmldb_field('partnermode', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
-        upgrade_mod_savepoint(true, 2007040200, 'moodlecst');
-    }
+        // Add field partnermode
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		 upgrade_mod_savepoint(true, 2015051701, 'moodlecst');
+	}
+	
+	//added partnermode 
+    if ($oldversion < 2015051801) {
 
-    // And that's all. Please, examine and understand the 3 example blocks above. Also
-    // it's interesting to look how other modules are using this script. Remember that
-    // the basic idea is to have "blocks" of code (each one being executed only once,
-    // when the module version (version.php) is updated.
+        // Define field sessionsize to be added to moodlecst
+        $table = new xmldb_table('moodlecst');
+        $field = new xmldb_field('sessionsize', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
-    // Lines above (this included) MUST BE DELETED once you get the first version of
-    // yout module working. Each time you need to modify something in the module (DB
-    // related, you'll raise the version and add one upgrade block here.
-
-    // Final return of upgrade result (true, all went good) to Moodle.
+        // Add field partnermode
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		 upgrade_mod_savepoint(true, 2015051801, 'moodlecst');
+	}
+	
     return true;
 }

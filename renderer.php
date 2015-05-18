@@ -97,17 +97,25 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
       }
 
 
-	public function fetch_newsessionlink($cm, $isteacher, $mode,$caption) {
+	public function fetch_newsessionlink($cm, $isteacher,$caption,$moodlecst) {
 		global $CFG,$USER;
 		$activityid = $cm->id;
 		$sesskey = $USER->sesskey;
 		$userid = $USER->id;
-		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'channel'=>1,'sessionid'=>1,'mode'=>$mode);
-		if($isteacher){
-			$urlparams['seat'] = 'teacher';
-			$urlparams['raterid'] = $userid;			
-		}else{
-			$urlparams['seat'] = 'student';
+		$partnermode = $moodlecst->partnermode==MOD_MOODLECST_PARTNERMODEAUTO ? 'auto' : 'manual';
+		$mode = $moodlecst->mode==MOD_MOODLECST_MODETEACHERSTUDENT ? 'teacherstudent' : 'studentstudent';
+		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'channel'=>1,'sessionid'=>1,'mode'=>$mode,'partnermode'=>$partnermode);
+		switch($moodlecst->partnermode){
+			case MOD_MOODLECST_PARTNERMODEMANUAL:
+				break;
+			case MOD_MOODLECST_PARTNERMODEAUTO:
+			default:
+				if($isteacher){
+					$urlparams['seat'] = 'teacher';
+					$urlparams['raterid'] = $userid;			
+				}else{
+					$urlparams['seat'] = 'student';
+				}
 		}
 		$config = get_config('mod_moodlecst');
 		$link = new moodle_url($CFG->wwwroot . ':' . $config->nodejsport,$urlparams);
@@ -120,12 +128,12 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 		return $ret;
     }
 	  
-	public function show_student_newsessionlink($cm,$mode,$caption){
-        return $this->fetch_newsessionlink($cm,false,$mode,$caption);
+	public function show_student_newsessionlink($cm,$caption,$moodlecst){
+        return $this->fetch_newsessionlink($cm,false,$caption,$moodlecst);
     }
 	
-	public function show_teacher_newsessionlink($cm,$mode, $caption){
-        return $this->fetch_newsessionlink($cm,true,$mode,$caption);
+	public function show_teacher_newsessionlink($cm,$caption,$moodlecst){
+        return $this->fetch_newsessionlink($cm,true,$caption,$moodlecst);
     }
 	
 
@@ -295,7 +303,10 @@ class mod_moodlecst_report_renderer extends plugin_renderer_base {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_moodlecst_json_renderer extends plugin_renderer_base {
-
+ const INSTRUCTIONSID=-1;
+ const CONSENTID=-2;
+ const SESSIONSID=-3;
+ const MYSEATID=-4;
 
 	/**
 	 * Return JSON that nodejs client is expecting regarding quiz
@@ -316,7 +327,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 * @param lesson $lesson
 	 * @return string
 	 */
-	 public function render_sessions_json($title,$context,$items) {
+	 public function render_sessions_json($title,$context,$items,$moodlecst) {
 		$sessions = new stdClass;
 		$tasks = array();
 		//fetch item ids
@@ -325,11 +336,55 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		}
 		
 		//loop through labels
-		$sessionlabels = array('1','2','3','4','5','6');
+		$sessionlabels = array('1','2','3','4');
 		foreach($sessionlabels as $label){
-			shuffle($tasks);
-			$sessions->{$label}=$tasks;
-		}
+			$taskset =$tasks;
+			//shuffling is evil
+			//because the pairs might get different randomized.
+			//To Be Figured out
+			//shuffle($taskset);
+			switch($label){
+				case '1':
+				case '3':
+					sort($taskset);
+					break;
+				default:
+					rsort($taskset);
+			}
+			
+			//truncate it to the session size
+			if($moodlecst->sessionsize > 0 && sizeof($taskset)>$moodlecst->sessionsize){
+				$taskset = array_slice($taskset,0,$moodlecst->sessionsize);
+			}
+			
+			//resort on 3 and 4 so all 4 sets are not the same 
+			//this is just temporary we will do something better later
+			switch($label){
+				case '3':
+					rsort($taskset);
+					break;
+				case '4':
+					sort($taskset);
+			}
+			
+			//prepend instructions and consent form and rater selection
+			if($moodlecst->mode==MOD_MOODLECST_MODETEACHERSTUDENT){
+				array_unshift($taskset,self::CONSENTID);
+				array_unshift($taskset,self::INSTRUCTIONSID);
+				array_unshift($taskset,self::SESSIONSID);
+			}else{
+				
+				array_unshift($taskset,self::INSTRUCTIONSID);
+				array_unshift($taskset,self::SESSIONSID);
+			}
+
+			if($moodlecst->partnermode==MOD_MOODLECST_PARTNERMODEAUTO){
+				array_unshift($taskset,self::MYSEATID);
+			}
+
+			
+			$sessions->{$label}=$taskset;
+		}	
 		return json_encode($sessions);
 	 }
 	
@@ -370,12 +425,54 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 * @param lesson $lesson
 	 * @return string
 	 */
-	 public function render_tasks_json($title,$context,$items) {
+	 public function render_tasks_json($title,$context,$items,$moodlecst) {
+		$config  = get_config(MOD_MOODLECST_FRANKY);
 		
 		//build the test object
 		$test = new stdClass;
 		$test->id = 1;
 		$test->title = $title;
+	
+		$instructionitem= new stdClass();
+		$instructionitem->id = self::INSTRUCTIONSID;
+		$instructionitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_INSTRUCTIONS;
+		$instructionitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION} = $config->generalinstructions_teacher;
+		$instructionitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'} = $config->generalinstructions_student;
+		array_unshift($items,$instructionitem);
+		
+		$consentitem= new stdClass();
+		$consentitem->id = self::CONSENTID;
+		$consentitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_CONSENT;
+		$consentitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION}= $config->consent;
+		array_unshift($items,$consentitem);
+		
+		$sessionsitem = new stdClass();
+		$sessionsitem->id = self::SESSIONSID;
+		$sessionsitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_CHOICE;
+		//prompt
+		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION} = 'Choose the Session:';
+		//variable
+		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_AUDIOFNAME}='sessionId';
+		//variable values
+		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'} = '1';
+		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '2'} = '2';
+		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '3'} = '3';
+		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '4'} = '4';
+		array_unshift($items,$sessionsitem);
+		
+		$myseatitem = new stdClass();
+		$myseatitem->id = self::MYSEATID;
+		$myseatitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_CHOICE;
+		//prompt
+		$myseatitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION} = 'Choose your Role:';
+		//variable
+		$myseatitem->{MOD_MOODLECST_SLIDEPAIR_AUDIOFNAME}='action:doSetSeat';
+		//variable values
+		$myseatitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'} = 'teacher';
+		$myseatitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '2'} = 'student';
+		array_unshift($items,$myseatitem);
+		
+		
 		
 		//process our tasks
 		$tasks = array();
@@ -410,11 +507,13 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				//$return = 'taboo_' . $item->id;
 				$return  = $item->id;
 				break;
+			default:
+				$return  = $item->id;
 		}
 		return $return;
 	 }
 
-		 /**
+	/**
 	 * Return HTML to display add first page links
 	 * @param lesson $lesson
 	 * @return string
@@ -434,6 +533,25 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 					$theanswer->id = $x;
 					$theanswer->img = $this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $x,$item);
 					$theanswer->correct = ($x==$item->{MOD_MOODLECST_SLIDEPAIR_CORRECTANSWER});
+					$answers[] = $theanswer;
+				}
+				$theitem->answers = $answers;
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_CHOICE:
+				$theitem->type='Productive';
+				$theitem->subType='choice';
+				$theitem->heading=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION};
+				$theitem->variable=$item->{MOD_MOODLECST_SLIDEPAIR_AUDIOFNAME};
+				$answers = array();
+				for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXANSWERS+1;$x++){
+					if(!property_exists($item,MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $x)){
+						break;
+					}
+					$theanswer= new stdClass;
+					$theanswer->id = $x;
+					$theanswer->text = $item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . $x};
+					$theanswer->correct = true;
 					$answers[] = $theanswer;
 				}
 				$theitem->answers = $answers;
@@ -474,11 +592,33 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				$theanswer= new stdClass;
 				$theanswer->id = 1;
 				$theanswer->text = $item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'};
+				$theanswer->correct = 1;
 				$answers[] = $theanswer;
 				$theitem->answers = $answers;
 				break;
 				
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_AUDIOCHOICE:
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_CONSENT:
+				$theitem->type='Productive';
+				$theitem->subType='consent';
+				$theitem->content=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION};
+				$theitem->answers='waiting for consent';
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_INSTRUCTIONS:
+				$theitem->type='Productive';
+				$theitem->subType='instructions';
+				$theitem->content=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION};
+				$theitem->answers=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'};
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_WHOWHO:
+				$theitem->type='Productive';
+				$theitem->subType='whowho';
+				$theitem->content='';
+				$theitem->answers='';
 				break;
 				
 		}

@@ -39,6 +39,9 @@ define('MOD_MOODLECST_ATTEMPTITEMTABLE','moodlecst_attemptitem');
 define('MOD_MOODLECST_MODNAME','moodlecst');
 define('MOD_MOODLECST_URL','/mod/moodlecst');
 define('MOD_MOODLECST_CLASS','mod_moodlecst');
+define('MOD_MOODLECST_PARTNERMODEMANUAL',0);
+define('MOD_MOODLECST_PARTNERMODEAUTO',1);
+
 
 define('MOD_MOODLECST_GRADEHIGHEST', 0);
 define('MOD_MOODLECST_GRADELOWEST', 1);

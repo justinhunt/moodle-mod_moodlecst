@@ -133,7 +133,7 @@ switch($moduleinstance->mode){
 	case MOD_MOODLECST_MODESTUDENTSTUDENT:
 		$mode="studentstudent";
 		$caption = get_string('gotocst',MOD_MOODLECST_LANG);
-		echo $renderer->show_student_newsessionlink($cm,$mode,$caption);
+		echo $renderer->show_student_newsessionlink($cm,$caption,$moduleinstance);
 		break;
 	case MOD_MOODLECST_MODETEACHERSTUDENT:
 	default:
@@ -141,15 +141,15 @@ switch($moduleinstance->mode){
 		//if we are teacher we may use the teacher link
 		if(has_capability('mod/moodlecst:preview',$modulecontext)){
 			$caption = get_string('gotocstasteacher',MOD_MOODLECST_LANG);
-			echo $renderer->show_teacher_newsessionlink($cm,$mode,$caption);
+			echo $renderer->show_teacher_newsessionlink($cm,$caption,$moduleinstance);
 			echo '<br />';
 			echo '<br />';
 			$caption = get_string('gotocstasstudent',MOD_MOODLECST_LANG);
-			echo $renderer->show_student_newsessionlink($cm,$mode,$caption);
+			echo $renderer->show_student_newsessionlink($cm,$caption,$moduleinstance);
 		}else{
 			//always show a studnet link, just in case
 			$caption = get_string('gotocst',MOD_MOODLECST_LANG);
-			echo $renderer->show_student_newsessionlink($cm,$mode,$caption);
+			echo $renderer->show_student_newsessionlink($cm,$caption,$moduleinstance);
 		}
 }
 

@@ -43,4 +43,4 @@ header("Access-Control-Allow-Origin: *");
 $modulecontext = context_module::instance($cm->id);
 $PAGE->set_context($modulecontext);
 $jsonrenderer = $PAGE->get_renderer('mod_moodlecst','json');
-echo $jsonrenderer->render_tasks_json('The CST Test',$modulecontext,$items);
+echo $jsonrenderer->render_tasks_json('The CST Test',$modulecontext,$items,$moodlecst);
