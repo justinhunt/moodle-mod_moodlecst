@@ -150,6 +150,6 @@ $string['generalinstructions_student_desc'] = 'The instructions the student/rate
 $string['consent'] = 'Consent';
 $string['consent_desc'] = 'When consent needs to be received, this is the text that will be shown to the student.';
 $string['autopartners'] = 'Assign partners automatically';
-$string['manualpartners'] = 'Parters choose each other';
+$string['manualpartners'] = 'Partners choose each other';
 $string['partnermode'] = 'Partner Mode';
 $string['sessionsize'] = 'Questions per Session';
