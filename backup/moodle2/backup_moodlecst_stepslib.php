@@ -52,7 +52,7 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
         // root element describing moodlecst instance
         $oneactivity = new backup_nested_element(MOD_MOODLECST_MODNAME, array('id'), array(
             'course','name','intro','introformat','someinstancesetting','gradeoptions','maxattempts','mingrade',
-			'mode','timecreated','timemodified'
+			'mode','partnermode','sessionsize','timecreated','timemodified'
 			));
 			
 		// slidepair	
