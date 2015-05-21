@@ -169,6 +169,19 @@ function xmldb_moodlecst_upgrade($oldversion) {
         }
 		 upgrade_mod_savepoint(true, 2015051801, 'moodlecst');
 	}
+	//added selectsession 
+    if ($oldversion < 2015052001) {
+
+        // Define field sessionsize to be added to moodlecst
+        $table = new xmldb_table('moodlecst');
+        $field = new xmldb_field('selectsession', XMLDB_TYPE_INTEGER, '2', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+
+        // Add field partnermode
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		 upgrade_mod_savepoint(true, 2015052001, 'moodlecst');
+	}
 	
     return true;
 }

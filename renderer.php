@@ -353,7 +353,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 			}
 			
 			//truncate it to the session size
-			if($moodlecst->sessionsize > 0 && sizeof($taskset)>$moodlecst->sessionsize){
+			if($moodlecst->sessionsize > 0 && $moodlecst->selectsession && sizeof($taskset)>$moodlecst->sessionsize){
 				$taskset = array_slice($taskset,0,$moodlecst->sessionsize);
 			}
 			
@@ -367,17 +367,20 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 					sort($taskset);
 			}
 			
-			//prepend instructions and consent form and rater selection
+			//prepend instructions and consent form 
 			if($moodlecst->mode==MOD_MOODLECST_MODETEACHERSTUDENT){
 				array_unshift($taskset,self::CONSENTID);
 				array_unshift($taskset,self::INSTRUCTIONSID);
-				array_unshift($taskset,self::SESSIONSID);
 			}else{
-				
 				array_unshift($taskset,self::INSTRUCTIONSID);
+			}
+			
+			//prepend session selection screen
+			if($moodlecst->selectsession){
 				array_unshift($taskset,self::SESSIONSID);
 			}
-
+			
+			//Prepend Role Selection screen
 			if($moodlecst->partnermode==MOD_MOODLECST_PARTNERMODEAUTO){
 				array_unshift($taskset,self::MYSEATID);
 			}

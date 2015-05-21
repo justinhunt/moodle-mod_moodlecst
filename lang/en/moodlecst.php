@@ -155,6 +155,7 @@ $string['autopartners'] = 'Assign partners automatically';
 $string['manualpartners'] = 'Partners choose each other';
 $string['partnermode'] = 'Partner Mode';
 $string['sessionsize'] = 'Questions per Session';
+$string['selectsession'] = 'Teacher selects session';
 $string['nodejsexecpath'] = 'Node JS Exec Path';
 $string['nodejsexecpath_details'] = 'The path for the actual Node.js executable. If its on the path then \'node\' is enough. Otherwise an absolute path. ';
 $string['nodejstemppath'] = 'Node App Temp Path';

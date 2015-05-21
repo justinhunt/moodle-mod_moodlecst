@@ -84,9 +84,15 @@ class mod_moodlecst_mod_form extends moodleform_mod {
 		$mform->setDefault('maxattempts', 0);
 		
 		//sessionsize
+		 $mform->addElement('selectyesno', 'selectsession', get_string('selectsession',MOD_MOODLECST_LANG));
+		 $mform->setType('selectsession', PARAM_INT);
+		 $mform->setDefault('selectsession', 0);
+		
+		//sessionsize
 		 $mform->addElement('text', 'sessionsize', get_string('sessionsize', MOD_MOODLECST_LANG), array('size'=>'32'));
 		 $mform->setType('sessionsize', PARAM_INT);
 		 $mform->setDefault('sessionsize', 5);
+		 $mform->disabledIf('sessionsize','selectsession','eq',0);
 		 
 		
         //grade options
