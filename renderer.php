@@ -117,8 +117,8 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 					$urlparams['seat'] = 'student';
 				}
 		}
-		$config = get_config('mod_moodlecst');
-		$link = new moodle_url($CFG->wwwroot . ':' . $config->nodejsport,$urlparams);
+		$config = get_config(MOD_MOODLECST_FRANKY);
+		$link = new moodle_url($config->nodejsurl . ':' . $config->nodejswebport,$urlparams);
 		//$ret =  html_writer::link($link, get_string('gotocst',MOD_MOODLECST_LANG));
 		$button = html_writer::tag('button',$caption, array('class'=>'btn btn-large btn-primary ' . MOD_MOODLECST_CLASS . '_actionbutton'));
 		$popupparams = array('height'=>800,'width'=>1050);

@@ -30,13 +30,28 @@ require_once($CFG->dirroot.'/mod/moodlecst/lib.php');
 if ($ADMIN->fulltree) {
 
 
+	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsexecpath',
+        get_string('nodejsexecpath', 'moodlecst'), get_string('nodejsexecpath_details', MOD_MOODLECST_LANG), 'node' , PARAM_RAW));
 
-	 $settings->add(new admin_setting_configtext('mod_moodlecst/nodejsport',
-        get_string('nodejsport', 'moodlecst'), get_string('nodejsport_details', MOD_MOODLECST_LANG), 8082, PARAM_INT));
-
-		
+	//there could be an https impl. but its unlikely. And just because the moodle url is https
+	//does not mean the nodejs app will be. In the https case, the user can just edit the url in the settings page.
+	$defaultnodejsurl = 'http://' . parse_url($CFG->wwwroot,PHP_URL_HOST);
+	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsurl',
+        get_string('nodejsurl', 'moodlecst'), get_string('nodejsurl_details', MOD_MOODLECST_LANG), $defaultnodejsurl , PARAM_RAW));
+	
+	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejswebport',
+        get_string('nodejswebport', 'moodlecst'), get_string('nodejswebport_details', MOD_MOODLECST_LANG), 8082, PARAM_INT));
+	
+	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsioport',
+        get_string('nodejsioport', 'moodlecst'), get_string('nodejsioport_details', MOD_MOODLECST_LANG), 8081, PARAM_INT));
+	
 	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsapppath',
         get_string('nodejsapppath', 'moodlecst'), get_string('nodejsapppath_details', MOD_MOODLECST_LANG), 'cst/app.js' , PARAM_RAW));
+		
+	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejstemppath',
+        get_string('nodejstemppath', 'moodlecst'), get_string('nodejstemppath_details', MOD_MOODLECST_LANG), 'tmp' , PARAM_RAW));
+		
+		
 		
 	//General Instructions at beginning of activity
 	$defaultInstructions =	"<h1>スピーキング伝達能力テストのやり方<br /></h1>";
@@ -84,5 +99,8 @@ if ($ADMIN->fulltree) {
 	$settings->add(new admin_setting_configtextarea('mod_moodlecst/consent',
 				get_string('consent', MOD_MOODLECST_LANG),
 				get_string('consent_desc', MOD_MOODLECST_LANG),$defaultConsent));
+				
+				
+				
 
 }
