@@ -41,10 +41,10 @@ if ($ADMIN->fulltree) {
 	
 	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejswebport',
         get_string('nodejswebport', 'moodlecst'), get_string('nodejswebport_details', MOD_MOODLECST_LANG), 8082, PARAM_INT));
-	
+	/*
 	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsioport',
         get_string('nodejsioport', 'moodlecst'), get_string('nodejsioport_details', MOD_MOODLECST_LANG), 8081, PARAM_INT));
-	
+	*/
 	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsapppath',
         get_string('nodejsapppath', 'moodlecst'), get_string('nodejsapppath_details', MOD_MOODLECST_LANG), 'cst/app.js' , PARAM_RAW));
 		

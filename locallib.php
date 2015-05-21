@@ -43,8 +43,9 @@ const NODE_ACTION_FORCERESTART = 3;
 	 */
 public static function start_server($app_path) {
 		$config = get_config(MOD_MOODLECST_FRANKY);
-		$nodepidfilepath = $config->nodejstemppath . '/' . self::NODEPID;
-		$nodelogfilepath = $config->nodejstemppath . '/' . self::NODELOG;
+		$temppath = self::get_temp_path();
+		$nodepidfilepath = $temppath . '/' . self::NODEPID;
+		$nodelogfilepath = $temppath . '/' . self::NODELOG;
 		
 		if(file_exists($nodepidfilepath)){
 			$node_pid = intval(file_get_contents($nodepidfilepath));
@@ -55,18 +56,32 @@ public static function start_server($app_path) {
 		$file = escapeshellarg($app_path);
 		$node_pid = exec($config->nodejsexecpath . " $file >$nodelogfilepath 2>&1 & echo $!");
 		$started= $node_pid > 0;
-		file_put_contents(($nodepidfilepath, $node_pid, LOCK_EX);
+		file_put_contents($nodepidfilepath, $node_pid, LOCK_EX);
 		return true;
 	}
+	
+	/**
+	 * Get the temp dir for nodepid and nodeout
+	 *
+	 */
+	static function get_temp_path(){
+		global $CFG;
+		$config = get_config(MOD_MOODLECST_FRANKY);
+		$temppath =  $config->nodejstemppath;
+		if(strpos($temppath,'/')!==0){
+			$temppath = $CFG->dirroot . '/mod/moodlecst/' . $temppath;
+		}
+		return $temppath;
+	}
 
-		/**
+	/**
 	 * Start the Node JS server
 	 *
 	 */
 public static function force_restart_server($app_path) {
-		$config = get_config(MOD_MOODLECST_FRANKY);
-		$nodepidfilepath = $config->nodejstemppath . '/' . self::NODEPID;
-		$nodelogfilepath = $config->nodejstemppath . '/' . self::NODELOG;
+		$temppath = self::get_temp_path();
+		$nodepidfilepath = $temppath . '/' . self::NODEPID;
+		$nodelogfilepath = $temppath . '/' . self::NODELOG;
 
 		self::stop_server();
 		file_put_contents($nodepidfilepath, '', LOCK_EX);
@@ -80,12 +95,15 @@ public static function force_restart_server($app_path) {
 	 *
 	 */
 public static function stop_server() {
-		$config = get_config(MOD_MOODLECST_FRANKY);
-		$nodepidfilepath = $config->nodejstemppath . '/' . self::NODEPID;
-		$nodelogfilepath = $config->nodejstemppath . '/' . self::NODELOG;
-
-		$node_pid = intval(file_get_contents($nodepidfilepath));
-		if($node_pid === 0) {
+		$temppath = self::get_temp_path();
+		$nodepidfilepath = $temppath . '/' . self::NODEPID;
+		$nodelogfilepath = $temppath . '/' . self::NODELOG;
+		if(file_exists($nodepidfilepath)){
+			$node_pid = intval(file_get_contents($nodepidfilepath));
+			if($node_pid === 0) {
+				return false;
+			}
+		}else{
 			return false;
 		}
 		$ret = -1;
@@ -101,10 +119,14 @@ public static function stop_server() {
 	 *
 	 */
 public static function fetch_log() {
-		$config = get_config(MOD_MOODLECST_FRANKY);
-		$nodelogfilepath = $config->nodejstemppath . '/' . self::NODELOG;
-		$node_log = file_get_contents($nodelogfilepath);
-		return $node_log;
+		$temppath = self::get_temp_path();
+		$nodelogfilepath = $temppath . '/' . self::NODELOG;
+		if(file_exists($nodelogfilepath)){
+			$node_log = file_get_contents($nodelogfilepath);
+			return $node_log;
+		}else{
+			return '';
+		}
 	}
 
 	/**
@@ -112,12 +134,15 @@ public static function fetch_log() {
 	 *
 	 */
  public static function is_server_running() {
- 		$config = get_config(MOD_MOODLECST_FRANKY);
-		$nodepidfilepath = $config->nodejstemppath . '/' . self::NODEPID;
-		$nodelogfilepath = $config->nodejstemppath . '/' . self::NODELOG;
-
-		$node_pid = intval(file_get_contents($nodepidfilepath));
-		return ($node_pid !== 0);
+ 		$temppath = self::get_temp_path();
+		$nodepidfilepath = $temppath . '/' . self::NODEPID;
+		$nodelogfilepath = $temppath . '/' . self::NODELOG;
+		if(file_exists($nodepidfilepath)){
+			$node_pid = intval(file_get_contents($nodepidfilepath));
+			return ($node_pid !== 0);
+		}else{
+			return false;
+		}
 	}
 
 }
