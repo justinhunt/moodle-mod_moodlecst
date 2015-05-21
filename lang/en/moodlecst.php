@@ -159,6 +159,6 @@ $string['selectsession'] = 'Teacher selects session';
 $string['nodejsexecpath'] = 'Node JS Exec Path';
 $string['nodejsexecpath_details'] = 'The path for the actual Node.js executable. If its on the path then \'node\' is enough. Otherwise an absolute path. ';
 $string['nodejstemppath'] = 'Node App Temp Path';
-$string['nodejstemppath_details'] = 'The path to the directory in which the temp files nodepid and nodeout will be kept. This much be writeable by nodejs and readable by the webserver.';
+$string['nodejstemppath_details'] = 'The path to the directory in which the temp files nodepid and nodeout will be kept. This must be writeable by nodejs and readable by the webserver.';
 $string['nodejsurl'] = 'Node server url';
 $string['nodejsurl_details'] = 'The url of the node js server. Probably the same as the Moodle server url. But only up until the domain extension. e.g http://mymoodle.com';
