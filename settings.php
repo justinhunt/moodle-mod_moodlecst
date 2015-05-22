@@ -32,6 +32,9 @@ if ($ADMIN->fulltree) {
 
 	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsexecpath',
         get_string('nodejsexecpath', 'moodlecst'), get_string('nodejsexecpath_details', MOD_MOODLECST_LANG), 'node' , PARAM_RAW));
+		
+	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejstemppath',
+        get_string('nodejstemppath', 'moodlecst'), get_string('nodejstemppath_details', MOD_MOODLECST_LANG), 'tmp' , PARAM_RAW));
 
 	//there could be an https impl. but its unlikely. And just because the moodle url is https
 	//does not mean the nodejs app will be. In the https case, the user can just edit the url in the settings page.
@@ -47,9 +50,6 @@ if ($ADMIN->fulltree) {
 	*/
 	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsapppath',
         get_string('nodejsapppath', 'moodlecst'), get_string('nodejsapppath_details', MOD_MOODLECST_LANG), 'cst/app.js' , PARAM_RAW));
-		
-	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejstemppath',
-        get_string('nodejstemppath', 'moodlecst'), get_string('nodejstemppath_details', MOD_MOODLECST_LANG), 'tmp' , PARAM_RAW));
 		
 		
 		
