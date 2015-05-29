@@ -228,7 +228,7 @@ class mod_moodlecst_allattempts_report extends  mod_moodlecst_base_report {
 							$oneattempturl = new moodle_url('/mod/moodlecst/reports.php', 
 									array('n'=>$record->moodlecstid,
 									'report'=>'oneattempt',
-									'attemptid'=>$record->id));
+									'itemid'=>$record->id));
 								$ret = html_writer::link($oneattempturl,$ret);
 						}
 						break;
@@ -304,6 +304,13 @@ class mod_moodlecst_oneattempt_report extends  mod_moodlecst_base_report {
 			switch($field){
 				case 'id':
 						$ret = $record->id;
+						if($withlinks){
+							$oneattempturl = new moodle_url('/mod/moodlecst/reports.php', 
+									array('n'=>$record->moodlecstid,
+									'report'=>'oneattempt',
+									'itemid'=>$record->id));
+								$ret = html_writer::link($oneattempturl,$ret);
+						}
 						break;
 				
 				case 'slidepairname':
@@ -363,3 +370,165 @@ class mod_moodlecst_oneattempt_report extends  mod_moodlecst_base_report {
 		return true;
 	}
 }
+
+/*
+* All Attempts Report
+*
+*
+*/
+class mod_moodlecst_allslidepairs_report extends  mod_moodlecst_base_report {
+	
+	protected $report="allslidepairs";
+	protected $fields = array('id','slidepairname','count','avgcorrect','avgtotaltime');	
+	protected $headingdata = null;
+	protected $qcache=array();
+	protected $ucache=array();
+	
+	public function fetch_formatted_field($field,$record,$withlinks){
+				global $DB;
+			switch($field){
+				case 'id':
+						$ret = $record->slidepairid;
+						if($withlinks){
+							$oneslidepairurl = new moodle_url('/mod/moodlecst/reports.php', 
+									array('n'=>$record->moodlecstid,
+									'report'=>'oneslidepair',
+									'itemid'=>$record->slidepairid));
+								$ret = html_writer::link($oneslidepairurl,$ret);
+						}
+						break;
+						break;
+				
+				case 'slidepairname':
+						$theslidepair = $this->fetch_cache(MOD_MOODLECST_SLIDEPAIR_TABLE,$record->slidepairid);
+						$ret=$theslidepair->name;
+					break;
+					
+				case 'count':
+						$ret=$record->cntslidepairid;
+					break;
+				
+				case 'avgcorrect':
+						$ret= round($record->avgcorrect,2);
+						break;				
+					
+				case 'avgtotaltime':
+						$ret= $this->fetch_formatted_time(round($record->avgtotaltime));
+						break;
+
+				default:
+					if(property_exists($record,$field)){
+						$ret=$record->{$field};
+					}else{
+						$ret = '';
+					}
+			}
+			return $ret;
+	}
+	
+	public function fetch_formatted_heading(){
+		$record = $this->headingdata;
+		$ret='';
+		if(!$record){return $ret;}
+		//$ec = $this->fetch_cache(MOD_MOODLECST_TABLE,$record->englishcentralid);
+		return get_string('allslidepairsheading',MOD_MOODLECST_LANG);
+		
+	}
+	
+	public function process_raw_data($formdata,$moduleinstance){
+		global $DB;
+		
+		//heading data
+		$this->headingdata = new stdClass();
+		
+		$emptydata = array();
+		$alldata= $DB->get_records_sql('SELECT slidepairid,moodlecstid,COUNT(slidepairid) AS cntslidepairid, AVG(correct) AS avgcorrect,AVG(duration) AS avgtotaltime FROM {'.	MOD_MOODLECST_ATTEMPTITEMTABLE.'} WHERE moodlecstid=:moodlecstid GROUP BY slidepairid',array('moodlecstid'=>$moduleinstance->id));
+
+		if($alldata){
+			$this->rawdata= $alldata;
+		}else{
+			$this->rawdata= $emptydata;
+		}
+		return true;
+	}
+}
+
+/*
+* All Attempts Report
+*
+*
+*/
+class mod_moodlecst_oneslidepair_report extends  mod_moodlecst_base_report {
+	
+	protected $report="oneslidepair";
+	protected $fields = array('id','username','answer','correct','totaltime','timecreated');	
+	protected $headingdata = null;
+	protected $qcache=array();
+	protected $ucache=array();
+	
+	public function fetch_formatted_field($field,$record,$withlinks){
+				global $DB;
+			switch($field){
+				case 'id':
+						$ret = $record->id;
+						break;
+				
+				case 'username':
+						$user = $this->fetch_cache('user',$record->userid);
+						$ret=fullname($user);
+					break;
+		
+					
+				case 'correct':
+						$theuser = $this->fetch_cache('user',$record->partnerid);
+						$ret=$record->correct ? get_string('yes') : get_string('no');
+					break;
+				
+				case 'answer':
+						$ret=$record->answerid;
+					break;
+				
+				case 'totaltime':
+						$ret= $this->fetch_formatted_time($record->duration);
+						break;
+						
+				case 'timecreated':
+						$ret = date("Y-m-d H:i:s",$record->timecreated);
+					break;
+					
+				default:
+					if(property_exists($record,$field)){
+						$ret=$record->{$field};
+					}else{
+						$ret = '';
+					}
+			}
+			return $ret;
+	}
+	
+	public function fetch_formatted_heading(){
+		$record = $this->headingdata;
+		$ret='';
+		if(!$record){return $ret;}
+		//$ec = $this->fetch_cache(MOD_MOODLECST_TABLE,$record->englishcentralid);
+		return get_string('oneattemptheading',MOD_MOODLECST_LANG);
+		
+	}
+	
+	public function process_raw_data($formdata,$moduleinstance){
+		global $DB;
+		
+		//heading data
+		$this->headingdata = new stdClass();
+		
+		$emptydata = array();
+		$alldata = $DB->get_records(MOD_MOODLECST_ATTEMPTITEMTABLE,array('slidepairid'=>$formdata->slidepairitemid,'course'=>$moduleinstance->course,'moodlecstid'=>$moduleinstance->id));
+		if($alldata){
+			$this->rawdata= $alldata;
+		}else{
+			$this->rawdata= $emptydata;
+		}
+		return true;
+	}
+}
+

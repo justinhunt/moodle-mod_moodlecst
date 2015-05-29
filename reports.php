@@ -37,7 +37,7 @@ $format = optional_param('format', 'html', PARAM_TEXT); //export format csv or h
 $showreport = optional_param('report', 'menu', PARAM_TEXT); // report type
 $questionid = optional_param('questionid', 0, PARAM_INT); // report type
 $userid = optional_param('userid', 0, PARAM_INT); // report type
-$attemptid = optional_param('attemptid', 0, PARAM_INT); // report type
+$itemid = optional_param('itemid', 0, PARAM_INT); // report type
 
 
 if ($id) {
@@ -107,7 +107,7 @@ switch ($showreport){
 	//not a true report, separate implementation in renderer
 	case 'menu':
 		echo $renderer->header($moduleinstance, $cm, $mode, null, get_string('reports', MOD_MOODLECST_LANG));
-		$reports =array('basic','allattempts');
+		$reports =array('basic','allattempts','allslidepairs');
 		echo $reportrenderer->render_reportmenu($moduleinstance,$cm,$reports);
 		// Finish the page
 		echo $renderer->footer();
@@ -126,7 +126,18 @@ switch ($showreport){
 	case 'oneattempt':
 		$report = new mod_moodlecst_oneattempt_report();
 		$formdata = new stdClass();
-		$formdata->attemptid=$attemptid;
+		$formdata->attemptid=$itemid;
+		break;
+		
+	case 'allslidepairs':
+		$report = new mod_moodlecst_allslidepairs_report();
+		$formdata = new stdClass();
+		break;
+		
+	case 'oneslidepair':
+		$report = new mod_moodlecst_oneslidepair_report();
+		$formdata = new stdClass();
+		$formdata->slidepairitemid=$itemid;
 		break;
 
 	default:
