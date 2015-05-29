@@ -101,11 +101,17 @@ $attemptdata->timecreated =time();
 $attemptdata->timemodified =0;
 $attemptid = $DB->insert_record(MOD_MOODLECST_ATTEMPTTABLE,$attemptdata);
 
+//prepare our update object for adding summmary from items to attempt
+$update_data = new stdClass();
+$update_data->id=$attemptid;
+$update_data->partnerid=0;
+$update_data->totaltime=0;
+$update_data->sessionscore=0;
+
 //add all our item to DB and build return data.
 foreach($results as $result){
 	$itemdata = new stdClass;
 	$itemdata->course =$course->id;
-	$itemdata->userid =$USER->id;
 	$itemdata->moodlecstid =$cm->instance;
 	$itemdata->attemptid =$attemptid;
 	$itemprops = get_object_vars($result);
@@ -120,6 +126,11 @@ foreach($results as $result){
 	if($dbresult->id){
 		$dbresult->error='';
 		$dbresult->success=true;
+		//add info to attempt table update
+		$update_data->partnerid = $itemdata->partnerid;
+		$update_data->userid = $itemdata->userid;
+		if($itemdata->correct){$update_data->sessionscore++;}
+		$update_data->totaltime+=$itemdata->duration;
 	}else{
 		$dbresult->id=0;
 		$dbresult->error='erroring inserting response item.';
@@ -128,7 +139,10 @@ foreach($results as $result){
 	$dbresults[] = $dbresult;
 }
 
+//update attempt table
+$DB->update_record(MOD_MOODLECST_ATTEMPTTABLE,$update_data);
 
+//return JSON to cst app
 $jsonrenderer = $PAGE->get_renderer(MOD_MOODLECST_FRANKY,'json');
 //header("Access-Control-Allow-Origin: *");
 echo $jsonrenderer->render_results_json($dbresults);

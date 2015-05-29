@@ -27,6 +27,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/slidepair/slidepairlib.php');
 require_once(dirname(__FILE__).'/reportclasses.php');
 
 
@@ -51,6 +52,7 @@ if ($id) {
     error('You must specify a course_module ID or an instance ID');
 }
 
+$PAGE->set_url(MOD_MOODLECST_URL . '/reports.php', array('id' => $cm->id));
 require_login($course, true, $cm);
 $modulecontext = context_module::instance($cm->id);
 
@@ -71,7 +73,6 @@ if($CFG->version<2014051200){
 
 
 /// Set up the page header
-$PAGE->set_url(MOD_MOODLECST_URL . '/reports.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
@@ -85,6 +86,18 @@ $PAGE->set_pagelayout('course');
 $renderer = $PAGE->get_renderer(MOD_MOODLECST_FRANKY);
 $reportrenderer = $PAGE->get_renderer(MOD_MOODLECST_FRANKY,'report');
 
+/*
+To make a report 
+add REPORTNAME . report + REPORTNAME . heading to strings
+add string for each field name from report classes to strings
+add name to reports array below for menu
+add entry below to call the report
+and of course make the report in the reportclasses 
+
+
+*/
+
+
 //From here we actually display the page.
 //this is core renderer stuff
 $mode = "reports";
@@ -94,7 +107,8 @@ switch ($showreport){
 	//not a true report, separate implementation in renderer
 	case 'menu':
 		echo $renderer->header($moduleinstance, $cm, $mode, null, get_string('reports', MOD_MOODLECST_LANG));
-		echo $reportrenderer->render_reportmenu($moduleinstance,$cm);
+		$reports =array('basic','allattempts');
+		echo $reportrenderer->render_reportmenu($moduleinstance,$cm,$reports);
 		// Finish the page
 		echo $renderer->footer();
 		return;
@@ -103,9 +117,18 @@ switch ($showreport){
 		$report = new mod_moodlecst_basic_report();
 		$formdata = new stdClass();
 		break;
+	
+	case 'allattempts':
+		$report = new mod_moodlecst_allattempts_report();
+		$formdata = new stdClass();
+		break;
+		
+	case 'oneattempt':
+		$report = new mod_moodlecst_oneattempt_report();
+		$formdata = new stdClass();
+		$formdata->attemptid=$attemptid;
+		break;
 
-		
-		
 	default:
 		echo $renderer->header($moduleinstance, $cm, $mode, null, get_string('reports', MOD_MOODLECST_LANG));
 		echo "unknown report type.";

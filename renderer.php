@@ -164,13 +164,16 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 class mod_moodlecst_report_renderer extends plugin_renderer_base {
 
 
-	public function render_reportmenu($moduleinstance,$cm) {
-		
-		$basic = new single_button(
-			new moodle_url(MOD_MOODLECST_URL . '/reports.php',array('report'=>'basic','id'=>$cm->id,'n'=>$moduleinstance->id)), 
-			get_string('basicreport',MOD_MOODLECST_LANG), 'get');
+	public function render_reportmenu($moduleinstance,$cm, $reports) {
+		$reportbuttons = array();
+		foreach($reports as $report){
+			$button = new single_button(
+				new moodle_url(MOD_MOODLECST_URL . '/reports.php',array('report'=>$report,'id'=>$cm->id,'n'=>$moduleinstance->id)), 
+				get_string($report .'report',MOD_MOODLECST_LANG), 'get');
+			$reportbuttons[] = $this->render($button);
+		}
 
-		$ret = html_writer::div($this->render($basic) .'<br />'  ,MOD_MOODLECST_CLASS  . '_listbuttons');
+		$ret = html_writer::div(implode('<br />',$reportbuttons) ,MOD_MOODLECST_CLASS  . '_listbuttons');
 
 		return $ret;
 	}

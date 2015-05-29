@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * Classes for Reports 
  *
  *	The important functions are:
-*  process_raw_data : turns log data for one thig (question attempt) into one row
+*  process_raw_data : turns log data for one thing (e.g question attempt) into one row
  * fetch_formatted_fields: uses data prepared in process_raw_data to make each field in fields full of formatted data
  * The allusers report is the simplest example 
  *
@@ -46,7 +46,7 @@ abstract class mod_moodlecst_base_report {
 	protected $dbcache=array();
 	
 	
-	abstract function process_raw_data($formdata);
+	abstract function process_raw_data($formdata,$moduleinstance);
 	abstract function fetch_formatted_heading();
 	
 	public function fetch_fields(){
@@ -85,6 +85,7 @@ abstract class mod_moodlecst_base_report {
 			
 			//return empty string if the timestamps are not both present.
 			if(!$seconds){return '';}
+			$time = time();
 			
 			return $this->fetch_time_difference($time, $time + $seconds);
 	}
@@ -142,7 +143,7 @@ abstract class mod_moodlecst_base_report {
 }
 
 /*
-* Nasic Report
+* Basic Report
 *
 *
 */
@@ -188,7 +189,7 @@ class mod_moodlecst_basic_report extends  mod_moodlecst_base_report {
 		
 	}
 	
-	public function process_raw_data($formdata){
+	public function process_raw_data($formdata,$moduleinstance){
 		global $DB;
 		
 		//heading data
@@ -196,6 +197,164 @@ class mod_moodlecst_basic_report extends  mod_moodlecst_base_report {
 		
 		$emptydata = array();
 		$alldata = $DB->get_records(MOD_MOODLECST_TABLE,array());
+		if($alldata){
+			$this->rawdata= $alldata;
+		}else{
+			$this->rawdata= $emptydata;
+		}
+		return true;
+	}
+}
+
+/*
+* All Attempts Report
+*
+*
+*/
+class mod_moodlecst_allattempts_report extends  mod_moodlecst_base_report {
+	
+	protected $report="allattempts";
+	protected $fields = array('id','username','partnername','sessionscore','totaltime','timecreated');	
+	protected $headingdata = null;
+	protected $qcache=array();
+	protected $ucache=array();
+	
+	public function fetch_formatted_field($field,$record,$withlinks){
+				global $DB;
+			switch($field){
+				case 'id':
+						$ret = $record->id;
+						if($withlinks){
+							$oneattempturl = new moodle_url('/mod/moodlecst/reports.php', 
+									array('n'=>$record->moodlecstid,
+									'report'=>'oneattempt',
+									'attemptid'=>$record->id));
+								$ret = html_writer::link($oneattempturl,$ret);
+						}
+						break;
+				
+				case 'username':
+						$theuser = $this->fetch_cache('user',$record->userid);
+						$ret=fullname($theuser);
+					break;
+					
+				case 'partnername':
+						$theuser = $this->fetch_cache('user',$record->partnerid);
+						$ret=fullname($theuser);
+					break;
+				case 'totaltime':
+						$ret= $this->fetch_formatted_time($record->totaltime);
+						break;
+						
+				case 'timecreated':
+						$ret = date("Y-m-d H:i:s",$record->timecreated);
+					break;
+					
+				default:
+					if(property_exists($record,$field)){
+						$ret=$record->{$field};
+					}else{
+						$ret = '';
+					}
+			}
+			return $ret;
+	}
+	
+	public function fetch_formatted_heading(){
+		$record = $this->headingdata;
+		$ret='';
+		if(!$record){return $ret;}
+		//$ec = $this->fetch_cache(MOD_MOODLECST_TABLE,$record->englishcentralid);
+		return get_string('allattemptsheading',MOD_MOODLECST_LANG);
+		
+	}
+	
+	public function process_raw_data($formdata,$moduleinstance){
+		global $DB;
+		
+		//heading data
+		$this->headingdata = new stdClass();
+		
+		$emptydata = array();
+		$alldata = $DB->get_records(MOD_MOODLECST_ATTEMPTTABLE,array('course'=>$moduleinstance->course,'moodlecstid'=>$moduleinstance->id));
+		if($alldata){
+			$this->rawdata= $alldata;
+		}else{
+			$this->rawdata= $emptydata;
+		}
+		return true;
+	}
+}
+
+/*
+* All Attempts Report
+*
+*
+*/
+class mod_moodlecst_oneattempt_report extends  mod_moodlecst_base_report {
+	
+	protected $report="oneattempt";
+	protected $fields = array('id','slidepairname','answer','correct','totaltime','timecreated');	
+	protected $headingdata = null;
+	protected $qcache=array();
+	protected $ucache=array();
+	
+	public function fetch_formatted_field($field,$record,$withlinks){
+				global $DB;
+			switch($field){
+				case 'id':
+						$ret = $record->id;
+						break;
+				
+				case 'slidepairname':
+						$theslidepair = $this->fetch_cache(MOD_MOODLECST_SLIDEPAIR_TABLE,$record->slidepairid);
+						$ret=$theslidepair->name;
+					break;
+					
+				case 'correct':
+						$theuser = $this->fetch_cache('user',$record->partnerid);
+						$ret=$record->correct ? get_string('yes') : get_string('no');
+					break;
+				
+				case 'answer':
+						$ret=$record->answerid;
+					break;
+				
+				case 'totaltime':
+						$ret= $this->fetch_formatted_time($record->duration);
+						break;
+						
+				case 'timecreated':
+						$ret = date("Y-m-d H:i:s",$record->timecreated);
+					break;
+					
+				default:
+					if(property_exists($record,$field)){
+						$ret=$record->{$field};
+					}else{
+						$ret = '';
+					}
+			}
+			return $ret;
+	}
+	
+	public function fetch_formatted_heading(){
+		$record = $this->headingdata;
+		$ret='';
+		if(!$record){return $ret;}
+		//$ec = $this->fetch_cache(MOD_MOODLECST_TABLE,$record->englishcentralid);
+		return get_string('oneattemptheading',MOD_MOODLECST_LANG);
+		
+	}
+	
+	public function process_raw_data($formdata,$moduleinstance){
+		global $DB;
+		
+		//heading data
+		$this->headingdata = new stdClass();
+		
+		$emptydata = array();
+		$alldata = $DB->get_records(MOD_MOODLECST_ATTEMPTITEMTABLE,array('attemptid'=>$formdata->attemptid,'course'=>$moduleinstance->course,'moodlecstid'=>$moduleinstance->id));
 		if($alldata){
 			$this->rawdata= $alldata;
 		}else{

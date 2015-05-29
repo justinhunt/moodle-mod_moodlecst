@@ -11,5 +11,8 @@
 	margin-right: 30%;
 }
 
-.mod_moodlecst_actionbutton{}
+div.mod_moodlecst_actionbuttons {
+	display: flex;
+	float: right;
+}
 

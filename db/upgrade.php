@@ -183,5 +183,26 @@ function xmldb_moodlecst_upgrade($oldversion) {
 		 upgrade_mod_savepoint(true, 2015052001, 'moodlecst');
 	}
 	
+	//added selectsession 
+    if ($oldversion < 2015052901) {
+
+        // Define field sessionsize to be added to moodlecst
+        $table = new xmldb_table('moodlecst_attempt');
+        
+
+        // Add field partnermode
+        $field = new xmldb_field('partnerid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		// Add field totaltime
+		$field = new xmldb_field('totaltime', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		 upgrade_mod_savepoint(true, 2015052901, 'moodlecst');
+	}
+	
     return true;
 }
