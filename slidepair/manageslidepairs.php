@@ -148,6 +148,7 @@ if ($data = $mform->get_data()) {
         $theitem->id = $data->itemid;
 		$theitem->visible = $data->visible;
 		$theitem->tags = $data->tags;
+		$theitem->timetarget = $data->timetarget;
 		$theitem->order = $data->order;
 		$theitem->type = $data->type;
 		if(property_exists($data,MOD_MOODLECST_SLIDEPAIR_SHUFFLEANSWERS)){
@@ -300,6 +301,7 @@ if ($data = $mform->get_data()) {
 if ($edit) {
 	$data = $item;		
 	$data->itemid = $item->id;
+	$data->timetarget = $item->timetarget;
 }else{
 	$data=new stdClass;
 	$data->itemid = null;

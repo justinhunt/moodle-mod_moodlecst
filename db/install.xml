@@ -15,6 +15,7 @@
 		<FIELD NAME="partnermode" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
 		<FIELD NAME="selectsession" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
 		<FIELD NAME="sessionsize" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
+		<FIELD NAME="timetarget" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
 		<FIELD NAME="gradeoptions" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0"  SEQUENCE="false" COMMENT="gradeoptions" />
 		<FIELD NAME="maxattempts" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="maxattempts" />
 		<FIELD NAME="mingrade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="completion condition mingrade" />
