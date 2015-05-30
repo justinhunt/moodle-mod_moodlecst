@@ -83,7 +83,7 @@ class mod_moodlecst_mod_form extends moodleform_mod {
         $mform->setType('maxattempts', PARAM_INT);
 		$mform->setDefault('maxattempts', 0);
 		
-		//sessionsize
+		//to use sessions or not
 		 $mform->addElement('selectyesno', 'selectsession', get_string('selectsession',MOD_MOODLECST_LANG));
 		 $mform->setType('selectsession', PARAM_INT);
 		 $mform->setDefault('selectsession', 0);
@@ -93,6 +93,13 @@ class mod_moodlecst_mod_form extends moodleform_mod {
 		 $mform->setType('sessionsize', PARAM_INT);
 		 $mform->setDefault('sessionsize', 5);
 		 $mform->disabledIf('sessionsize','selectsession','eq',0);
+		 
+		//time target options
+        $timetargetoptions = array(MOD_MOODLECST_TIMETARGET_IGNORE => get_string('timetargetignore',MOD_MOODLECST_LANG),
+                            MOD_MOODLECST_TIMETARGET_SHOW => get_string('timetargetshow', MOD_MOODLECST_LANG),
+                            MOD_MOODLECST_TIMETARGET_FORCE => get_string('timetargetforce', MOD_MOODLECST_LANG));
+        $mform->addElement('select', 'timetarget', get_string('timetarget', MOD_MOODLECST_LANG), $timetargetoptions);
+		$mform->setDefault('timetarget', MOD_MOODLECST_TIMETARGET_IGNORE);
 		 
 		
         //grade options

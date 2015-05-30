@@ -147,6 +147,7 @@ if ($data = $mform->get_data()) {
         $theitem->moodlecst = $moodlecst->id;
         $theitem->id = $data->itemid;
 		$theitem->visible = $data->visible;
+		$theitem->tags = $data->tags;
 		$theitem->order = $data->order;
 		$theitem->type = $data->type;
 		if(property_exists($data,MOD_MOODLECST_SLIDEPAIR_SHUFFLEANSWERS)){

@@ -121,11 +121,18 @@ abstract class moodlecst_add_item_form_base extends moodleform {
             $mform->setType('name', PARAM_TEXT);
             $mform->addRule('name', get_string('required'), 'required', null, 'client');
 
-            $mform->addElement('editor', MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION . '_editor', get_string('itemcontents', 'moodlecst'), null, $this->editoroptions);
+            $mform->addElement('editor', MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION . '_editor', get_string('itemcontents', 'moodlecst'), array('rows'=>'4', 'columns'=>'80'), $this->editoroptions);
             $mform->setType(MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION . '_editor', PARAM_RAW);
             $mform->addRule(MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION . '_editor', get_string('required'), 'required', null, 'client');
         }
+		//visibility
 		$mform->addElement('selectyesno', 'visible', get_string('visible'));
+		//tags
+		$mform->addElement('textarea', 'tags', get_string('tags','moodlecst'), 'wrap="virtual" rows="2" cols="80"', array());
+		$mform->setType('tags', PARAM_TEXT);
+		//time target
+		$mform->addElement('duration', 'timetarget', get_string('timetarget','moodlecst'));
+		
 		
         $this->custom_definition();
 		

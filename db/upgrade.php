@@ -156,7 +156,7 @@ function xmldb_moodlecst_upgrade($oldversion) {
 		 upgrade_mod_savepoint(true, 2015051701, 'moodlecst');
 	}
 	
-	//added partnermode 
+	//added sessionsise
     if ($oldversion < 2015051801) {
 
         // Define field sessionsize to be added to moodlecst
@@ -183,14 +183,14 @@ function xmldb_moodlecst_upgrade($oldversion) {
 		 upgrade_mod_savepoint(true, 2015052001, 'moodlecst');
 	}
 	
-	//added selectsession 
+	//added partnerid and totaltime
     if ($oldversion < 2015052901) {
 
         // Define field sessionsize to be added to moodlecst
         $table = new xmldb_table('moodlecst_attempt');
         
 
-        // Add field partnermode
+        // Add field partnerid
         $field = new xmldb_field('partnerid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 		if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
@@ -203,6 +203,44 @@ function xmldb_moodlecst_upgrade($oldversion) {
         }
 		 upgrade_mod_savepoint(true, 2015052901, 'moodlecst');
 	}
+	
+	//added tags
+    if ($oldversion < 2015053001) {
+
+        // Define field sessionsize to be added to moodlecst
+        $table = new xmldb_table('moodlecst_slidepairs');
+        
+
+        // Add field tags
+        $field = new xmldb_field('tags', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+		 upgrade_mod_savepoint(true, 2015053001, 'moodlecst');
+	}
+	
+	//added time target
+    if ($oldversion < 2015053002) {
+
+        // Define field sessionsize to be added to moodlecst
+        $table = new xmldb_table('moodlecst_slidepairs');
+        
+        // Add field tags
+        $field = new xmldb_field('timetarget', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+		
+		// Define field sessionsize to be added to moodlecst
+        $table = new xmldb_table('moodlecst');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+		 upgrade_mod_savepoint(true, 2015053002, 'moodlecst');
+	}
+	
 	
     return true;
 }
