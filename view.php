@@ -139,7 +139,7 @@ switch($moduleinstance->mode){
 	default:
 		$mode="teacherstudent";
 		//if we are teacher we may use the teacher link
-		if(has_capability('mod/moodlecst:preview',$modulecontext) && $moduleinstance->partnermode==MOD_MOODLECST_PARTNERMODEAUTO){
+		if(has_capability('mod/moodlecst:preview',$modulecontext)){
 			$caption = get_string('gotocstasteacher',MOD_MOODLECST_LANG);
 			echo $renderer->show_teacher_newsessionlink($cm,$caption,$moduleinstance);
 			echo '<br />';

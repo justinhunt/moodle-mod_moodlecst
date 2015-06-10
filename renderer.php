@@ -104,11 +104,14 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 		$userid = $USER->id;
 		$partnermode = $moodlecst->partnermode==MOD_MOODLECST_PARTNERMODEAUTO ? 'auto' : 'manual';
 		$mode = $moodlecst->mode==MOD_MOODLECST_MODETEACHERSTUDENT ? 'teacherstudent' : 'studentstudent';
-		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'channel'=>1,'sessionid'=>1,'mode'=>$mode,'partnermode'=>$partnermode);
-		switch($moodlecst->partnermode){
-			case MOD_MOODLECST_PARTNERMODEMANUAL:
+		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'sessionid'=>1,'mode'=>$mode,'partnermode'=>$partnermode);
+		switch($moodlecst->mode){
+			case MOD_MOODLECST_MODESTUDENTSTUDENT:
+				//the client gets confused of no set set, so by default 
+				//we go in as student, until its changed
+				$urlparams['seat'] = 'student';
 				break;
-			case MOD_MOODLECST_PARTNERMODEAUTO:
+			case MOD_MOODLECST_MODETEACHERSTUDENT:
 			default:
 				if($isteacher){
 					$urlparams['seat'] = 'teacher';
@@ -310,6 +313,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
  const CONSENTID=-2;
  const SESSIONSID=-3;
  const MYSEATID=-4;
+ const PARTNERCONFIRMID=-5;
 
 	/**
 	 * Return JSON that nodejs client is expecting regarding quiz
@@ -384,10 +388,14 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 			}
 			
 			//Prepend Role Selection screen
-			if($moodlecst->partnermode==MOD_MOODLECST_PARTNERMODEAUTO){
+			//this is only in student student mode, when auto making partners
+			//otherwise there is the option on the setup screen or we show buttons to teachers
+			if($moodlecst->mode == MOD_MOODLECST_MODESTUDENTSTUDENT){
 				array_unshift($taskset,self::MYSEATID);
 			}
-
+			
+			//partner confirmation
+			array_unshift($taskset,self::PARTNERCONFIRMID);
 			
 			$sessions->{$label}=$taskset;
 		}	
@@ -477,6 +485,12 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		$myseatitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'} = 'teacher';
 		$myseatitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '2'} = 'student';
 		array_unshift($items,$myseatitem);
+		
+		$partnerconfirmitem= new stdClass();
+		$partnerconfirmitem->id = self::PARTNERCONFIRMID;
+		$partnerconfirmitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_PARTNERCONFIRM;
+		$partnerconfirmitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION}= '';
+		array_unshift($items,$partnerconfirmitem);
 		
 		
 		
@@ -611,6 +625,13 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				$theitem->subType='consent';
 				$theitem->content=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION};
 				$theitem->answers='waiting for consent';
+				break;
+				
+			case MOD_MOODLECST_SLIDEPAIR_TYPE_PARTNERCONFIRM:
+				$theitem->type='Productive';
+				$theitem->subType='partnerconfirm';
+				$theitem->content='';
+				$theitem->answers='';
 				break;
 				
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_INSTRUCTIONS:
