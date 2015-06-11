@@ -328,6 +328,28 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		$result->progess=$progress;
 		return json_encode($result);
 	 }
+	 
+	 /**
+	 * Return JSON that nodejs client is expecting regarding quiz
+	 * @param lesson $lesson
+	 * @return string
+	 */
+	 public function render_testproperties_json($moodlecst){
+		$properties = new stdClass;
+		switch($moodlecst->timetarget){
+			
+			case MOD_MOODLECST_TIMETARGET_SHOW:
+				$properties->timetarget='show';
+				break;
+			case MOD_MOODLECST_TIMETARGET_FORCE:
+				$properties->timetarget='force';
+				break;
+			case MOD_MOODLECST_TIMETARGET_IGNORE:
+			default:
+				$properties->timetarget='ignore';
+		}
+		return json_encode($properties);
+	 }
 
 	 /**
 	 * Return HTML to display add first page links
@@ -541,6 +563,10 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 public function render_slidepair($context,$item) {
 		$theitem = new stdClass;
 		$theitem->id = $this->fetch_item_id($item->type, $item);
+		if(!isset($item->timetarget)){
+			$item->timetarget = 0;
+		}
+		$theitem->timetarget=$item->timetarget;
 
 		switch($item->type){
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:

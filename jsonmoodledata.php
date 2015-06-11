@@ -47,6 +47,9 @@ $jsonrenderer = $PAGE->get_renderer('mod_moodlecst','json');
 header("Access-Control-Allow-Origin: *");
 
 switch($type){
+	case 'testproperties':
+		echo $jsonrenderer->render_testproperties_json($moodlecst);
+		break;
 	case 'mydetails':
 	case 'partnerdetails':
 	default:
