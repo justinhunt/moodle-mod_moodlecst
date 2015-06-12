@@ -90,6 +90,16 @@ abstract class mod_moodlecst_base_report {
 			return $this->fetch_time_difference($time, $time + $seconds);
 	}
 	
+	public function fetch_formatted_milliseconds($milliseconds){
+			
+			//return empty string if the timestamps are not both present.
+			if(!$milliseconds){return '';}
+			$time = time();
+			
+			return $this->fetch_time_difference($time, $time + ($milliseconds/1000));
+	}
+	
+	
 	public function fetch_time_difference($starttimestamp,$endtimestamp){
 			
 			//return empty string if the timestamps are not both present.
@@ -243,7 +253,7 @@ class mod_moodlecst_allattempts_report extends  mod_moodlecst_base_report {
 						$ret=fullname($theuser);
 					break;
 				case 'totaltime':
-						$ret= $this->fetch_formatted_time($record->totaltime);
+						$ret= $this->fetch_formatted_milliseconds($record->totaltime);
 						break;
 						
 				case 'timecreated':
@@ -328,7 +338,7 @@ class mod_moodlecst_oneattempt_report extends  mod_moodlecst_base_report {
 					break;
 				
 				case 'totaltime':
-						$ret= $this->fetch_formatted_time($record->duration);
+						$ret= $this->fetch_formatted_milliseconds($record->duration);
 						break;
 						
 				case 'timecreated':
@@ -413,7 +423,7 @@ class mod_moodlecst_allslidepairs_report extends  mod_moodlecst_base_report {
 						break;				
 					
 				case 'avgtotaltime':
-						$ret= $this->fetch_formatted_time(round($record->avgtotaltime));
+						$ret= $this->fetch_formatted_milliseconds(round($record->avgtotaltime));
 						break;
 
 				default:
@@ -489,7 +499,7 @@ class mod_moodlecst_oneslidepair_report extends  mod_moodlecst_base_report {
 					break;
 				
 				case 'totaltime':
-						$ret= $this->fetch_formatted_time($record->duration);
+						$ret= $this->fetch_formatted_milliseconds($record->duration);
 						break;
 						
 				case 'timecreated':
