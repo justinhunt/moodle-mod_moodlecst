@@ -352,9 +352,29 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 }
 
 	 /**
-	 * Return HTML to display add first page links
-	 * @param lesson $lesson
+	 * Return number of sessions
+	 * @param int slidepaircount
+	 * @param stdClass moodlecst
 	 * @return string
+	 */
+	public function get_session_count($slidepaircount,$moodlecst){
+		//count the number of slidepairs and sessions
+		if($moodlecst->sessionsize > 0 && $slidepaircount >= $moodlecst->sessionsize){
+			$sessioncount = $slidepaircount / $moodlecst->sessionsize;
+			if($sessioncount>4){$sessioncount=4;}
+		}else{
+			$sessioncount = 1;
+		}
+		return $sessioncount;
+	}
+
+	 /**
+	 * Return json for sessions (session = array of taskids)
+	 * @param string $title
+	 * @param string $context
+	 * @param array $items
+	 * @param stdClass $moodlecst
+	 * @return stdClass
 	 */
 	 public function render_sessions_json($title,$context,$items,$moodlecst) {
 		$sessions = new stdClass;
@@ -364,38 +384,16 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				$tasks[] =  $this->fetch_item_id($item->type, $item);
 		}
 		
-		//loop through labels
-		$sessionlabels = array('1','2','3','4');
-		foreach($sessionlabels as $label){
-			$taskset =$tasks;
-			//shuffling is evil
-			//because the pairs might get different randomized.
-			//To Be Figured out
-			//shuffle($taskset);
-			switch($label){
-				case '1':
-				case '3':
-					sort($taskset);
-					break;
-				default:
-					rsort($taskset);
+		$slidepaircount = count($items);
+		$sessioncount = $this->get_session_count($slidepaircount,$moodlecst);
+		for($sessnumber = 1;$sessnumber <= $sessioncount;$sessnumber++){
+			if($moodlecst->sessionsize > 0){
+				$starttask = ($sessnumber -1) * $moodlecst->sessionsize;
+				$taskset = array_slice($tasks,$starttask,$moodlecst->sessionsize);
+			}else{
+				$taskset=$tasks;
 			}
-			
-			//truncate it to the session size
-			if($moodlecst->sessionsize > 0 && $moodlecst->selectsession && sizeof($taskset)>$moodlecst->sessionsize){
-				$taskset = array_slice($taskset,0,$moodlecst->sessionsize);
-			}
-			
-			//resort on 3 and 4 so all 4 sets are not the same 
-			//this is just temporary we will do something better later
-			switch($label){
-				case '3':
-					rsort($taskset);
-					break;
-				case '4':
-					sort($taskset);
-			}
-			
+
 			//prepend instructions and consent form 
 			if($moodlecst->mode==MOD_MOODLECST_MODETEACHERSTUDENT){
 				array_unshift($taskset,self::CONSENTID);
@@ -419,7 +417,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 			//partner confirmation
 			array_unshift($taskset,self::PARTNERCONFIRMID);
 			
-			$sessions->{$label}=$taskset;
+			$sessions->{$sessnumber}=$taskset;
 		}	
 		return json_encode($sessions);
 	 }
@@ -464,11 +462,20 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 public function render_tasks_json($title,$context,$items,$moodlecst) {
 		$config  = get_config(MOD_MOODLECST_FRANKY);
 		
+		//count the number of slidepairs and sessions
+		$slidepaircount = count($items);
+		if($moodlecst->sessionsize > 0 && $slidepaircount >= $moodlecst->sessionsize){
+			$sessioncount = $slidepaircount / $moodlecst->sessionsize;
+		}else{
+			$sessioncount = 1;
+		}
+		
 		//build the test object
 		$test = new stdClass;
 		$test->id = 1;
 		$test->title = $title;
 	
+		//instructions
 		$instructionitem= new stdClass();
 		$instructionitem->id = self::INSTRUCTIONSID;
 		$instructionitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_INSTRUCTIONS;
@@ -476,26 +483,35 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		$instructionitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'} = $config->generalinstructions_student;
 		array_unshift($items,$instructionitem);
 		
+		//consent screen
 		$consentitem= new stdClass();
 		$consentitem->id = self::CONSENTID;
 		$consentitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_CONSENT;
 		$consentitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION}= $config->consent;
 		array_unshift($items,$consentitem);
 		
+		//Session screen
 		$sessionsitem = new stdClass();
 		$sessionsitem->id = self::SESSIONSID;
 		$sessionsitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_CHOICE;
 		//prompt
 		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION} = 'Choose the Session:';
 		//variable
-		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_AUDIOFNAME}='sessionId';
+		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_AUDIOFNAME}='action:doSetSession';
 		//variable values
 		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '1'} = '1';
-		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '2'} = '2';
-		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '3'} = '3';
-		$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '4'} = '4';
+		if($sessioncount > 1){
+			$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '2'} = '2';
+		}
+		if($sessioncount > 2){
+			$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '3'} = '3';
+		}
+		if($sessioncount > 3){
+			$sessionsitem->{MOD_MOODLECST_SLIDEPAIR_TEXTANSWER . '4'} = '4';
+		}
 		array_unshift($items,$sessionsitem);
 		
+		//teacher/student choice
 		$myseatitem = new stdClass();
 		$myseatitem->id = self::MYSEATID;
 		$myseatitem->type =MOD_MOODLECST_SLIDEPAIR_TYPE_CHOICE;

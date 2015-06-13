@@ -91,8 +91,8 @@ class mod_moodlecst_mod_form extends moodleform_mod {
 		//sessionsize
 		 $mform->addElement('text', 'sessionsize', get_string('sessionsize', MOD_MOODLECST_LANG), array('size'=>'32'));
 		 $mform->setType('sessionsize', PARAM_INT);
-		 $mform->setDefault('sessionsize', 5);
-		 $mform->disabledIf('sessionsize','selectsession','eq',0);
+		 $mform->setDefault('sessionsize', 0);
+		 //$mform->disabledIf('sessionsize','selectsession','eq',0);
 		 
 		//time target options
         $timetargetoptions = array(MOD_MOODLECST_TIMETARGET_IGNORE => get_string('timetargetignore',MOD_MOODLECST_LANG),
