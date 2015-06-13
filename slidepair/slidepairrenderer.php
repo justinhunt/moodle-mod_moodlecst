@@ -92,7 +92,8 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 		);
 
 		//sort by start date
-		core_collator::asort_objects_by_property($items,'timecreated',core_collator::SORT_NUMERIC);
+		//core_collator::asort_objects_by_property($items,'timecreated',core_collator::SORT_NUMERIC);
+		//core_collator::asort_objects_by_property($items,'name',core_collator::SORT_STRING);
 
 		//loop through the homoworks and add to table
 		foreach ($items as $item) {
