@@ -16,3 +16,52 @@ div.mod_moodlecst_actionbuttons {
 	float: right;
 }
 
+
+.generaltable.mod_moodlecst_session_choosertable {
+	width: 100%;
+	border: 1px;
+}
+
+.mod_moodlecst_session_choosertable  select{
+	width: 100%; 
+}
+.mod_moodlecst_session_choosertable  button{
+	width: 100%; 
+}
+.generaltable.mod_moodlecst_session_choosertable  td{
+	text-align: center; 
+}
+.generaltable.mod_moodlecst_session_choosertable  td.listcontainer{
+	width: 45%;
+}
+.generaltable.mod_moodlecst_session_choosertable  td.buttoncontainer{
+	width: 10%;
+}
+
+div.mod_moodlecst_session_activitylist{
+	padding: 5px;
+}
+div.mod_moodlecst_session_activitylistitem{
+	padding-top: 10px;
+}
+
+div.mod_moodlecst_session_actionbuttons {
+	display: flex;
+	float: left;
+	padding: 10px;
+	vertical-align: bottom;
+}
+div.mod_moodlecst_session_choosebutton {
+	display: flex;
+	float: right;
+	padding: 10px;
+	vertical-align: bottom;
+}
+
+div.mod_moodlecst_session_noactivities{
+	padding: 20px;
+	margin: auto;
+	width: 70%;
+	text-align: center;
+	color: #FF0000;
+}

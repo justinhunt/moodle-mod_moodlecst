@@ -56,6 +56,7 @@ define('MOD_MOODLECST_MODESTUDENTSTUDENT', 1);
 
 
 require_once($CFG->dirroot.'/mod/moodlecst/slidepair/slidepairlib.php');
+require_once($CFG->dirroot.'/mod/moodlecst/session/sessionlib.php');
 
 ////////////////////////////////////////////////////////////////////////////////
 // Moodle core API                                                            //

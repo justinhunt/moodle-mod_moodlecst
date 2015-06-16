@@ -17,6 +17,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once('slidepair/slidepairrenderer.php');
+require_once('session/sessionrenderer.php');
 
 /**
  * A custom renderer class that extends the plugin_renderer_base.
@@ -162,7 +163,7 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 		}
 	}
   
-}
+}//end of class
 
 class mod_moodlecst_report_renderer extends plugin_renderer_base {
 

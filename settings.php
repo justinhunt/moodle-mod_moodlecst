@@ -51,7 +51,8 @@ if ($ADMIN->fulltree) {
 	$settings->add(new admin_setting_configtext('mod_moodlecst/nodejsapppath',
         get_string('nodejsapppath', 'moodlecst'), get_string('nodejsapppath_details', MOD_MOODLECST_LANG), 'cst/app.js' , PARAM_RAW));
 		
-		
+	 $settings->add(new admin_setting_configtext('mod_moodlecst/listheight',
+        get_string('listheight', 'moodlecst'), get_string('listheightdetails', 'moodlecst'), 12, PARAM_INT));
 		
 	//General Instructions at beginning of activity
 	$defaultInstructions =	"<h1>スピーキング伝達能力テストのやり方<br /></h1>";
