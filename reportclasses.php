@@ -314,7 +314,7 @@ class mod_moodlecst_oneattempt_report extends  mod_moodlecst_base_report {
 			switch($field){
 				case 'id':
 						$ret = $record->id;
-						if($withlinks){
+						if($withlinks && false){
 							$oneattempturl = new moodle_url('/mod/moodlecst/reports.php', 
 									array('n'=>$record->moodlecstid,
 									'report'=>'oneattempt',
@@ -521,7 +521,7 @@ class mod_moodlecst_oneslidepair_report extends  mod_moodlecst_base_report {
 		$ret='';
 		if(!$record){return $ret;}
 		//$ec = $this->fetch_cache(MOD_MOODLECST_TABLE,$record->englishcentralid);
-		return get_string('oneattemptheading',MOD_MOODLECST_LANG);
+		return get_string('oneslidepairheading',MOD_MOODLECST_LANG);
 		
 	}
 	

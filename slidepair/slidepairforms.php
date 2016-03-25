@@ -363,6 +363,11 @@ class moodlecst_add_item_form_textchoice extends moodlecst_add_item_form_base {
 		$this->add_shuffleanswers();
 		//$this->add_editor_answersinrow();
 		//$this->add_editor_answerwidth();
+		//maybe dont need this. TODO: review this ... Justin
+		$this->_form->addElement('hidden', MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW,0);
+		$this->_form->setType(MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW, PARAM_INT);
+		$this->_form->addElement('hidden', MOD_MOODLECST_SLIDEPAIR_ANSWERWIDTH,0);
+		$this->_form->setType(MOD_MOODLECST_SLIDEPAIR_ANSWERWIDTH, PARAM_INT);
 		
         for ($i = 1; $i <= MOD_MOODLECST_SLIDEPAIR_MAXANSWERS; $i++) {
             $this->_form->addElement('header', 'answertitle'.$i, get_string('answer').' '. $i);
