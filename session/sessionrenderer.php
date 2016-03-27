@@ -65,35 +65,50 @@ class mod_moodlecst_session_renderer extends plugin_renderer_base {
 		$table = new html_table();
 		$table->id = 'mod_moodlecst_qpanel';
 		$table->head = array(
-			get_string('itemname', 'moodlecst'),
-			get_string('itemtype', 'moodlecst'),
+			get_string('sessionname', 'moodlecst'),
+			get_string('sessiontype', 'moodlecst'),
+			get_string('active', 'moodlecst'),
+			get_string('slidepaircount', 'moodlecst'),
 			get_string('actions', 'moodlecst')
 		);
-		$table->headspan = array(1,1,3);
+		$table->headspan = array(1,1,1,1,3);
 		$table->colclasses = array(
-			'itemname', 'itemtitle', 'edit','preview','delete'
+			'itemname', 'itemtype','active','slidepaircount', 'edit','preview','delete'
 		);
 
 		//sort by start date
 		core_collator::asort_objects_by_property($items,'timecreated',core_collator::SORT_NUMERIC);
 
-		//loop through the homoworks and add to table
+		//loop through the sessions and add to table
 		foreach ($items as $item) {
 			$row = new html_table_row();
 		
-		
+	        //session name	
 			$itemnamecell = new html_table_cell($item->name);	
+			//session type
 			switch($item->type){
 				case MOD_MOODLECST_SESSION_TYPE_NORMAL:
-					$itemtype = get_string('normal','moodlecst');
-					break;
 				default:
+					$itemtype = get_string('normal','moodlecst'); 
 			} 
 			$itemtypecell = new html_table_cell($itemtype);
+			
+			//session is active?
+			$itemactive = $item->active ? get_string('yes') : get_string('no');
+			$itemactivecell= new html_table_cell($itemactive);
 		
+			//session slidepair item count
+			$slidepaircount = 0;
+			if(strlen($item->slidepairkeys)>0){
+				$slidepaircount = substr_count($item->slidepairkeys, ',')+1; 
+			}
+			$itemslidepaircountcell= new html_table_cell($slidepaircount);
+			
+		
+			//actions
 			$actionurl = '/mod/moodlecst/session/managesessions.php';
 			$editurl = new moodle_url($actionurl, array('id'=>$cm->id,'itemid'=>$item->id));
-			$editlink = html_writer::link($editurl, get_string('edititem', 'moodlecst'));
+			$editlink = html_writer::link($editurl, get_string('editsession', 'moodlecst'));
 			$editcell = new html_table_cell($editlink);
 			
 			//$previewurl = new moodle_url($actionurl, array('id'=>$cm->id,'itemid'=>$item->id, 'action'=>'previewitem'));
@@ -102,11 +117,11 @@ class mod_moodlecst_session_renderer extends plugin_renderer_base {
 			$previewcell = new html_table_cell($previewlink);
 		
 			$deleteurl = new moodle_url($actionurl, array('id'=>$cm->id,'itemid'=>$item->id,'action'=>'confirmdelete'));
-			$deletelink = html_writer::link($deleteurl, get_string('deleteitem', 'moodlecst'));
+			$deletelink = html_writer::link($deleteurl, get_string('deletesession', 'moodlecst'));
 			$deletecell = new html_table_cell($deletelink);
 
 			$row->cells = array(
-				$itemnamecell, $itemtypecell, $editcell, $previewcell, $deletecell
+				$itemnamecell, $itemtypecell, $itemactivecell, $itemslidepaircountcell, $editcell, $previewcell, $deletecell
 			);
 			$table->data[] = $row;
 		}
@@ -115,7 +130,12 @@ class mod_moodlecst_session_renderer extends plugin_renderer_base {
 
 	}
 	
-		public function fetch_chooser($chosen,$unchosen){
+	public function fetch_preview_link($itemid,$moodlecstid){
+		return '-';
+	
+	}
+	
+	public function fetch_chooser($chosen,$unchosen){
 		//select lists
 		$config= get_config('moodlecst');
 		//$listheight=$config->listheight;

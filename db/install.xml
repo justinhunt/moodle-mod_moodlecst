@@ -16,6 +16,7 @@
 		<FIELD NAME="selectsession" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
 		<FIELD NAME="sessionsize" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
 		<FIELD NAME="timetarget" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+		<FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
 		<FIELD NAME="gradeoptions" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0"  SEQUENCE="false" COMMENT="gradeoptions" />
 		<FIELD NAME="maxattempts" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="maxattempts" />
 		<FIELD NAME="mingrade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="completion condition mingrade" />
@@ -93,8 +94,20 @@
         <FIELD NAME="answercount" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="answersinrow" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="answerwidth" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="difficulty" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timebound1" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timegrade1" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timebound2" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timegrade2" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timebound3" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timegrade3" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timebound4" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timegrade4" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timebound5" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
+        <FIELD NAME="timegrade5" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="slidepairkey" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false" COMMENT="" />
         <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="modifiedby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
@@ -102,5 +115,19 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="moodlecst_sessions" COMMENT="moodlecst_sessions table retrofitted from MySQL">
+		<FIELDS>
+			<FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
+			<FIELD NAME="course" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+			<FIELD NAME="moodlecst" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+			<FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+			<FIELD NAME="type" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+			<FIELD NAME="active" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+			<FIELD NAME="displayorder" TYPE="int" LENGTH="18" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+			<FIELD NAME="slidepairkeys" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+			<FIELD NAME="timecreated" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+			<FIELD NAME="timemodified" TYPE="int" LENGTH="18" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+		</FIELDS>
+	</TABLE>
   </TABLES>
 </XMLDB>

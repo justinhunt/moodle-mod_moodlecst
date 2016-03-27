@@ -94,20 +94,21 @@ abstract class moodlecst_session_add_item_form_base extends moodleform {
 
         $mform->addElement('hidden', 'itemid');
         $mform->setType('itemid', PARAM_INT);
+        
+        $mform->addElement('hidden', 'courseid');
+        $mform->setType('courseid', PARAM_INT);
 
-        if ($this->standard === true) {
-            $mform->addElement('hidden', 'type');
-            $mform->setType('type', PARAM_INT);
+		$mform->addElement('hidden', 'type');
+		$mform->setType('type', PARAM_INT);
 			
-			$mform->addElement('hidden', 'order');
-            $mform->setType('order', PARAM_INT);
+		$mform->addElement('hidden', 'displayorder');
+		$mform->setType('displayorder', PARAM_INT);
 
-            $mform->addElement('text', 'name', get_string('itemtitle', 'moodlecst'), array('size'=>70));
-            $mform->setType('name', PARAM_TEXT);
-            $mform->addRule('name', get_string('required'), 'required', null, 'client');
-
-        }
-		$mform->addElement('selectyesno', 'visible', get_string('visible'));
+		$mform->addElement('text', 'name', get_string('sessiontitle', 'moodlecst'), array('size'=>70));
+		$mform->setType('name', PARAM_TEXT);
+		$mform->addRule('name', get_string('required'), 'required', null, 'client');
+	
+		$mform->addElement('selectyesno', 'active', get_string('active','moodlecst'));
 		
         $this->custom_definition();
 		

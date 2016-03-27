@@ -71,6 +71,11 @@ $redirecturl = new moodle_url('/mod/moodlecst/slidepair/slidepairs.php', array('
 
 	//handle delete actions
     if($action == 'confirmdelete'){
+    	$usecount = $DB->count_records(MOD_MOODLECST_ATTEMPTITEMTABLE,array('slidepairid'=>$itemid));
+    	if($usecount>0){
+    		redirect($redirecturl,get_string('iteminuse','moodlecst'),10);
+    	}
+
 		$renderer = $PAGE->get_renderer('mod_moodlecst');
 		$slidepair_renderer = $PAGE->get_renderer('mod_moodlecst','slidepair');
 		echo $renderer->header($moodlecst, $cm, 'slidepairs', null, get_string('confirmitemdeletetitle', 'moodlecst'));
@@ -85,7 +90,6 @@ $redirecturl = new moodle_url('/mod/moodlecst/slidepair/slidepairs.php', array('
     	require_sesskey();
 		$success = mod_moodlecst_slidepair_delete_item($moodlecst,$itemid,$context);
         redirect($redirecturl);
-	
     }
 
 
@@ -186,6 +190,13 @@ if ($data = $mform->get_data()) {
 					break;
 			}
 			
+			//set grading defaults
+			for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXDURATIONBOUNDARIES;$i++){
+						$theitem->{MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE . $i}=0;
+						$theitem->{MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY . $i}=0;
+			}
+			
+			//try to insert it
 			if (!$theitem->id = $DB->insert_record(MOD_MOODLECST_SLIDEPAIR_TABLE,$theitem)){
 					error("Could not insert moodlecst item!");
 					redirect($redirecturl);
@@ -283,6 +294,13 @@ if ($data = $mform->get_data()) {
 		
 		}
 
+
+		//save grades
+		//set grading defaults
+		for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXDURATIONBOUNDARIES;$i++){
+				$theitem->{MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE . $i}=$data->{MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE . $i};
+				$theitem->{MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY . $i}=$data->{MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY . $i};
+		}
 		
 		//now update the db once we have saved files and stuff
 		if (!$DB->update_record(MOD_MOODLECST_SLIDEPAIR_TABLE,$theitem)){

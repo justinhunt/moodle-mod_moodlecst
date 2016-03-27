@@ -29,6 +29,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015053002;      // If version == 0 then module will not be installed
+$plugin->version   = 2016032602;      // If version == 0 then module will not be installed
 $plugin->requires  = 2010031900;      // Requires this Moodle version
 $plugin->component = 'mod_moodlecst'; // To check on upgrade, that module sits in correct place

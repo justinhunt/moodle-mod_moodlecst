@@ -108,7 +108,7 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'sessionid'=>1,'mode'=>$mode,'partnermode'=>$partnermode);
 		switch($moodlecst->mode){
 			case MOD_MOODLECST_MODESTUDENTSTUDENT:
-				//the client gets confused of no set set, so by default 
+				//the client gets confused if no seat set, so by default 
 				//we go in as student, until its changed
 				$urlparams['seat'] = 'student';
 				break;
@@ -371,6 +371,9 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 
 	 /**
 	 * Return json for sessions (session = array of taskids)
+	 * Depending on the settings for the moodlecst instance
+	 * we add screens for consent and session selection etc
+	 *
 	 * @param string $title
 	 * @param string $context
 	 * @param array $items
@@ -640,10 +643,19 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 				$theitem->subType='taboo';
 				$theitem->content=$item->{MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION};
 				$answers = array();
-				$theanswer= new stdClass;
-				$theanswer->id = 1;
-				$theanswer->text = 'Done';
-				$answers[] = $theanswer;
+				
+				$noanswer= new stdClass;
+				$noanswer->id = 0;
+				$noanswer->text = 'No. I could not answer';
+				$noanswer->correct = false;
+				$answers[] = $noanswer;
+				
+				$yesanswer= new stdClass;
+				$yesanswer->id = 1;
+				$yesanswer->text = 'YES. I could answer';
+				$yesanswer->correct = true;
+				
+				$answers[] = $yesanswer;
 				$theitem->answers = $answers;
 				break;
 				

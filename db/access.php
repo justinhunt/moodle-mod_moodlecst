@@ -106,6 +106,16 @@ $capabilities = array(
 			'clonepermissionsfrom' => 'moodle/course:manageactivities'
 	),
 
+ 'mod/moodlecst:manageattempts' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'legacy' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
     'mod/moodlecst:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

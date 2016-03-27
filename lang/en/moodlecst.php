@@ -73,6 +73,8 @@ $string['defaultsettings'] ='Default Settings';
 $string['exceededattempts'] ='You have completed the maximum {$a} attempts.';
 $string['slidepairs'] ='Slidepairs';
 $string['manageslidepairs'] ='Manage Slidepairs';
+$string['sessions'] ='Sessions';
+$string['managesessions'] ='Manage Sessions';
 //slidepairs
 
 $string['whatdonow'] = 'What would you like to do?';
@@ -195,3 +197,32 @@ $string['slidepairchooser'] = 'Slidepair Chooser';
 $string['listheight'] = 'List Height';
 $string['listheightdetails'] = 'The list size of the select box containing slidepairs when creating new sessions.';
 $string['nodataavailable'] = 'No data available';
+
+//slidepairs
+$string['durationgradesettings'] = 'Grade Settings ';
+$string['durationboundary']='{$a}: Time(seconds) taken equal or greater than ';
+$string['boundarygrade']='{$a}: percent grade ';
+$string['numeric']='Must be numeric ';
+$string['difficulty']='Difficulty ';
+$string['latestattemptsummary']= 'Latest Attempt Summary: {$a}';
+$string['latestattemptsummaryreport']= 'Latest Attempt Summary';
+$string['iteminuse']= 'This slidepair is part of users attempt history. It cannot be deleted.';
+
+//Deleting
+$string['delete'] ='delete';
+$string['deleteattempt'] ='delete';
+$string['deleteallattempts'] ='Delete All Attempts';
+$string['confirmattemptdeletetitle'] ='Delete attempt?';
+$string['confirmattemptdelete'] ='Are you sure you want to delete this attempt?';
+$string['confirmattemptdeletealltitle'] ='Delete ALL attempts?';
+$string['confirmattemptdeleteall'] ='Are you sure you want to delete ALL attempts?';
+
+//sessions
+$string['sessiontitle'] = 'Session Title';
+$string['sessionname'] = 'Name';
+$string['sessiontype'] = 'Type';
+$string['editsession'] = 'edit session';
+$string['deletesession'] = 'delete session';
+$string['active'] = 'Active';
+$string['normal'] = 'Normal';
+$string['slidepaircount'] = 'Items';

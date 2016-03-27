@@ -51,7 +51,7 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
 
         // root element describing moodlecst instance
         $oneactivity = new backup_nested_element(MOD_MOODLECST_MODNAME, array('id'), array(
-            'course','name','intro','introformat','someinstancesetting','gradeoptions','maxattempts','mingrade',
+            'course','name','intro','introformat','someinstancesetting','grade','gradeoptions','maxattempts','mingrade',
 			'mode','partnermode','sessionsize','timecreated','timemodified'
 			));
 			
@@ -59,8 +59,12 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
 		$slidepairs = new backup_nested_element('slidepairs');
 		$slidepair = new backup_nested_element('slidepair', array('id'),array(
 			MOD_MOODLECST_MODNAME, 'name', 'type','visible','itemtext', 'itemformat','itemaudiofname', 'answertext1', 'answertext1format','answertext2', 'answertext2format','answertext3', 'answertext3format','answertext4', 'answertext4format',
-		  'correctanswer','shuffleanswers','answercount','answersinrow','answerwidth','createdby','modifiedby','timecreated','timemodified'
-		));
+		  'correctanswer','shuffleanswers','answercount','answersinrow','answerwidth','createdby','modifiedby','timecreated','timemodified','difficulty','timebound1','timegrade1','timebound2','timegrade2','timebound3','timegrade3','timebound4','timegrade4','timebound5','timegrade5','slidepairkey'
+		
+		
+		// sessions	
+		$sessions = new backup_nested_element('sessions');
+		$session = new backup_nested_element('session', array('id'),array('course', MOD_MOODLECST_MODNAME , 'name', 'type','active','displayorder', 'slidepairkeys','timecreated', 'timemodified')); 
 		
 		//attempts
         $attempts = new backup_nested_element('attempts');
@@ -78,6 +82,8 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
 		// Build the tree.
 		$oneactivity->add_child($slidepairs);
 		$slidepairs->add_child($slidepair);
+		$oneactivity->add_child($sessions);
+		$sessions->add_child($session);
         $oneactivity->add_child($attempts);
         $attempts->add_child($attempt);
 		$oneactivity->add_child($items);
@@ -88,6 +94,9 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
         // Define sources.
         $oneactivity->set_source_table(MOD_MOODLECST_TABLE, array('id' => backup::VAR_ACTIVITYID));
 		$slidepair->set_source_table(MOD_MOODLECST_SLIDEPAIR_TABLE,
+                                        array(MOD_MOODLECST_MODNAME => backup::VAR_PARENTID));
+
+		$session->set_source_table(MOD_MOODLECST_SESSION_TABLE,
                                         array(MOD_MOODLECST_MODNAME => backup::VAR_PARENTID));
 
         //sources if including user info

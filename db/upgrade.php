@@ -32,6 +32,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/mod/moodlecst/slidepair/slidepairlib.php');
+
 /**
  * Execute moodlecst upgrade from the given old version
  *
@@ -241,6 +243,47 @@ function xmldb_moodlecst_upgrade($oldversion) {
 		 upgrade_mod_savepoint(true, 2015053002, 'moodlecst');
 	}
 	
+	if($oldversion < 2016032601){
+		
+		// Get moodle cst table
+        $table = new xmldb_table('moodlecst');
+		
+		//add grade field
+		$field = new xmldb_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+		if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+		// Get moodle cst table
+        $table = new xmldb_table('moodlecst_slidepairs');        
+        $newfields = array();
+        $newfields[] = new xmldb_field('difficulty', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timebound1', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timegrade1', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timebound2', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timegrade2', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timebound3', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timegrade3', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timebound4', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timegrade4', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timebound5', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('timegrade5', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+		$newfields[] = new xmldb_field('slidepairkey', XMLDB_TYPE_TEXT, null, null, null, null, null);
+		foreach($newfields as $newfield){
+			if (!$dbman->field_exists($table, $newfield)) {
+				$dbman->add_field($table, $newfield);
+			}
+        }
+        
+        $records = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,$DB->sql_compare_text('slidepairkey') ." = ''");
+		foreach($records as $record){
+			$DB->set_field(MOD_MOODLECST_SLIDEPAIR_TABLE,'slidepairkey',
+				mod_moodlecst_create_slidepairkey(),array('id'=>$record->id));
+		}
+		
+        
+        upgrade_mod_savepoint(true, 2016032601, 'moodlecst');
+	}
 	
     return true;
 }

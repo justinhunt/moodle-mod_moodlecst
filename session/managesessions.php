@@ -28,13 +28,14 @@ require_once("../../../config.php");
 require_once($CFG->dirroot.'/mod/moodlecst/lib.php');
 require_once($CFG->dirroot.'/mod/moodlecst/session/sessionforms.php');
 require_once($CFG->dirroot.'/mod/moodlecst/session/sessionlocallib.php');
+require_once($CFG->dirroot.'/mod/moodlecst/slidepair/slidepairlib.php');
 
 global $USER,$DB;
 
 // first get the nfo passed in to set up the page
 $itemid = optional_param('itemid',0 ,PARAM_INT);
 $id     = required_param('id', PARAM_INT);         // Course Module ID
-$type  = optional_param('type', MOD_MOODLECST_SESSION_TYPE_NONE, PARAM_INT);
+$type  = optional_param('type', MOD_MOODLECST_SESSION_TYPE_NORMAL, PARAM_INT);
 $action = optional_param('action','edit',PARAM_TEXT);
 
 // get the objects we need
@@ -92,12 +93,42 @@ $redirecturl = new moodle_url('/mod/moodlecst/session/sessions.php', array('id'=
     }
 
 //get the mform for our item
+$sortorder =  array();
+$chosendata =  array();
+$unchosendata =  array();
+
 switch($type){
 	case MOD_MOODLECST_SESSION_TYPE_NORMAL:
-		//need to get CHOSENDATA and UNCHOSEN data , ie have to set it
-		$chosendata=array();
-		$unchosendata=array();
-		$sortorderarray = array();
+		
+		//In general we are doing more DB here than is ideal
+		
+		//first get existing selection if we are in edit mode
+		//we have to get them into an SQL IN section, eack key quoted and between commas
+		$slidepair_SQL_IN  = '""';
+		if($edit){
+			$currentslidepairs = $item->slidepairkeys;
+			$slidepair_SQL_IN = mod_moodlecst_create_sql_in($currentslidepairs);
+		}
+
+
+		//use the same sort ordering columns for all lists so we do not lose things
+		$sqlsortcolumn = 'id';
+		//use the same fields as output for all lists
+		$sqlselectedfields = 'slidepairkey,name';		
+		
+		//need to get CHOSENDATA and UNCHOSEN data for our chooser component
+		$chosendata= $DB->get_records_select_menu(MOD_MOODLECST_SLIDEPAIR_TABLE,
+				'slidepairkey IN (' . $slidepair_SQL_IN . ')',array(),$sqlsortcolumn,$sqlselectedfields);
+		
+		$unchosendata = $DB->get_records_select_menu(MOD_MOODLECST_SLIDEPAIR_TABLE,
+				'NOT slidepairkey IN (' . $slidepair_SQL_IN . ')',array(),$sqlsortcolumn,$sqlselectedfields);
+
+		//sort order is kind of needed or else the items get all over the place
+		//we fetch the sort order and pass it on to the chooser
+		$sortorder_result = $DB->get_records_menu(MOD_MOODLECST_SLIDEPAIR_TABLE,
+				array(),$sqlsortcolumn,$sqlselectedfields);
+		$sortorder =array_keys($sortorder_result);
+				
 		$chooser = $session_renderer->fetch_chooser($chosendata,$unchosendata);
 		$mform = new moodlecst_session_standard_form(null,array($chooser));
 		break;
@@ -121,8 +152,11 @@ if ($data = $mform->get_data()) {
         $theitem->moodlecst = $moodlecst->id;
         $theitem->id = $data->itemid;
         $theitem->course = $data->courseid;
-		$theitem->sessionid= $data->sessionid;
-		$theitem->order = $data->order;
+        $theitem->active = $data->active;
+		$theitem->name= $data->name;
+		$theitem->type= $data->type;
+		$theitem->slidepairkeys= $data->slidepairkeys;
+		$theitem->displayorder = $data->displayorder;
 		$theitem->modifiedby=$USER->id;
 		$theitem->timemodified=time();
 		
@@ -132,7 +166,7 @@ if ($data = $mform->get_data()) {
 
 			$theitem->timecreated=time();				
 			if (!$theitem->id = $DB->insert_record(MOD_MOODLECST_SESSION_TABLE,$theitem)){
-					error("Could not insert  item!");
+					error("Could not insert new session!");
 					redirect($redirecturl);
 			}
 		}			
@@ -140,8 +174,15 @@ if ($data = $mform->get_data()) {
 		
 		//now update the db once we have saved files and stuff
 		if (!$DB->update_record(MOD_MOODLECST_SESSION_TABLE,$theitem)){
-				print_error("Could not update item!");
+				print_error("Could not update session!");
 				redirect($redirecturl);
+		}
+		
+		//if this session is set to be the active one, disable the others.
+		//TO DO use set_field_select and redice this to one sql call
+		if($theitem->active){
+			$DB->set_field(MOD_MOODLECST_SESSION_TABLE,'active',0,array('moodlecst'=>$theitem->moodlecst));
+			$DB->set_field(MOD_MOODLECST_SESSION_TABLE,'active',1,array('id'=>$theitem->id));
 		}
 
 		
@@ -154,9 +195,14 @@ if ($data = $mform->get_data()) {
 if ($edit) {
 	$data = $item;		
 	$data->itemid = $item->id;
+	$data->courseid = $course->id;
+	$data->id = $cm->id;
+	$data->type=$item->type;
 }else{
 	$data=new stdClass;
 	$data->itemid = null;
+	$data->courseid = $course->id;
+	$data->id=$cm->id;;
 	$data->type=$type;
 }
 		
@@ -176,7 +222,7 @@ if ($edit) {
 			$opts['updatefield'] =MOD_MOODLECST_SESSION_UPDATEFIELD;
 			$opts['chosendata'] =$chosendata;
 			$opts['unchosendata'] =$unchosendata;
-			$opts['sortorder']=implode(',',$sortorderarray);
+			$opts['sortorder']=implode(',',$sortorder);
 			$PAGE->requires->js_init_call('M.mod_moodlecst_session.init', array($opts),false,$jsmodule);
 			break;
 		default:

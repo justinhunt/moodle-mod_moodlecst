@@ -224,7 +224,7 @@ class mod_moodlecst_basic_report extends  mod_moodlecst_base_report {
 class mod_moodlecst_allattempts_report extends  mod_moodlecst_base_report {
 	
 	protected $report="allattempts";
-	protected $fields = array('id','username','partnername','sessionscore','totaltime','timecreated');	
+	protected $fields = array('id','username','partnername','sessionscore','totaltime','timecreated', 'delete');	
 	protected $headingdata = null;
 	protected $qcache=array();
 	protected $ucache=array();
@@ -260,6 +260,16 @@ class mod_moodlecst_allattempts_report extends  mod_moodlecst_base_report {
 						$ret = date("Y-m-d H:i:s",$record->timecreated);
 					break;
 					
+
+				case 'delete':
+					if($withlinks){
+						$actionurl = '/mod/moodlecst/manageattempts.php';
+						$deleteurl = new moodle_url($actionurl, array('id'=>$record->cmid,'attemptid'=>$record->id,'action'=>'confirmdelete'));
+						$ret = html_writer::link($deleteurl, get_string('deleteattempt', 'moodlecst'));
+					}else{
+						$ret="";
+					}
+					break;					
 				default:
 					if(property_exists($record,$field)){
 						$ret=$record->{$field};
@@ -287,6 +297,12 @@ class mod_moodlecst_allattempts_report extends  mod_moodlecst_base_report {
 		
 		$emptydata = array();
 		$alldata = $DB->get_records(MOD_MOODLECST_ATTEMPTTABLE,array('course'=>$moduleinstance->course,'moodlecstid'=>$moduleinstance->id));
+		
+		
+		foreach($alldata as $adata){
+			$adata->cmid = $formdata->cmid;
+		}
+		
 		if($alldata){
 			$this->rawdata= $alldata;
 		}else{
@@ -295,6 +311,150 @@ class mod_moodlecst_allattempts_report extends  mod_moodlecst_base_report {
 		return true;
 	}
 }
+
+
+/*
+* All Attempts Report
+*
+*
+*/
+class mod_moodlecst_latestattemptsummary_report extends mod_moodlecst_base_report {
+	
+	protected $report="latestattemptsummary";
+	protected $fields = array();//this is set in process raw data	
+	protected $headingdata = null;
+	protected $qcache=array();
+	protected $ucache=array();
+	
+	public function fetch_head(){
+		$head=array();
+		foreach($this->fields as $field){
+			if(strpos($field,'item_correct_')===0){
+				$itemid = str_replace('item_correct_','',$field);
+				$slidepair =$this->fetch_cache('moodlecst_slidepairs',$itemid);
+				if($slidepair){
+					$head[]=$slidepair->name . ':correct' ;
+				}else{
+					$head[]='item:correct';
+				}	
+			}elseif(strpos($field,'item_duration_')===0){
+				$itemid = str_replace('item_duration_','',$field);
+				$slidepair =$this->fetch_cache('moodlecst_slidepairs',$itemid);
+				if($slidepair){
+					$head[]=$slidepair->name . ':time' ;
+				}else{
+					$head[]='item:duration';
+				}
+			}else{
+				$head[]=get_string($field,MOD_MOODLECST_LANG);
+			}
+		}
+		return $head;
+	}
+	
+	public function fetch_formatted_field($field,$record,$withlinks){
+				global $DB;
+			switch($field){
+
+				case 'username':
+						$theuser = $this->fetch_cache('user',$record->username);
+						$ret=fullname($theuser);
+					break;
+					
+				case 'moodlecst':
+						$themoodlecst = $this->fetch_cache('moodlecst',$record->moodlecst);
+						$ret=$themoodlecst->name;
+					break;
+			
+				default:
+					//put logic here if need to format item correct or time
+					if(strpos($field,'item_correct_')===0){
+						//do something
+					}elseif(strpos($field,'item_duration_')===0){
+						//do something
+					}
+				
+					if(property_exists($record,$field)){
+						$ret=$record->{$field};
+					}else{
+						$ret = '';
+					}
+			}
+			return $ret;
+	}
+	
+	public function fetch_formatted_heading(){
+		return get_string('latestattemptsummary',MOD_MOODLECST_LANG,$this->headingdata->name );
+	}
+	
+	public function process_raw_data($formdata,$moduleinstance){
+		global $DB;
+		
+		//heading data for report header, add moodle cst name
+		$this->headingdata = new stdClass();
+		$this->headingdata = $this->fetch_cache('moodlecst',$moduleinstance->id);
+		
+		$emptydata = array();
+		
+		$itemarray= $DB->get_fieldset_select(MOD_MOODLECST_ATTEMPTITEMTABLE,
+		'slidepairid', 'moodlecstid = ?',array($moduleinstance->id));
+		$items = array_unique($itemarray);
+		
+		//print_r($items);
+				
+		$sql ='SELECT *, MAX(attemptid) as maxattemptid FROM {' . MOD_MOODLECST_ATTEMPTITEMTABLE . '} ';
+		$sql .= 'WHERE moodlecstid =? AND slidepairid IN ('. implode(',',$items) .') GROUP BY userid,slidepairid';
+		
+		//echo $sql;
+		//die;
+		
+		$itemsbyuser = $DB->get_records_sql($sql,array($moduleinstance->id));
+
+		//update the fields since each run of the report may have diff fields in it
+		$this->fields = array('username');	
+		foreach($items as $item){
+			$this->fields[]='item_correct_' . $item;
+			$this->fields[]='item_duration_' . $item;
+		}
+		
+		$currentuserid=0;
+		$rawdatarow = false;
+		foreach($itemsbyuser as $useritem){
+			//data is a series of rows each of a diff slidepair grouped by user
+			//so we group data till the user changes, then we stash it
+			if($useritem->userid!=$currentuserid){
+				if($rawdatarow){
+					$this->rawdata[]= $rawdatarow;
+				}
+				$currentuserid = $useritem->userid;
+				$rawdatarow= new stdClass;
+				$rawdatarow->username=$useritem->userid;
+				$rawdatarow->moodlecst=$moduleinstance->id;
+				foreach($items as $item){
+					$rawdatarow->{'item_correct_' . $item}='-';
+					$rawdatarow->{'item_duration_' . $item}='-';
+				}
+			}
+			//stash the slide pair data
+			$rawdatarow->{'item_correct_' . $useritem->slidepairid}=$useritem->correct;
+			$rawdatarow->{'item_duration_' . $useritem->slidepairid}=$useritem->duration;
+		}
+		if($rawdatarow){
+			$this->rawdata[]= $rawdatarow;
+		}
+		
+		if(!$rawdatarow){
+			$this->rawdata= $emptydata;
+		}
+		return true;
+	}
+}
+
+
+
+
+
+
 
 /*
 * All Attempts Report

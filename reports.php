@@ -107,7 +107,7 @@ switch ($showreport){
 	//not a true report, separate implementation in renderer
 	case 'menu':
 		echo $renderer->header($moduleinstance, $cm, $mode, null, get_string('reports', MOD_MOODLECST_LANG));
-		$reports =array('basic','allattempts','allslidepairs');
+		$reports =array('basic','allattempts','allslidepairs','latestattemptsummary');
 		echo $reportrenderer->render_reportmenu($moduleinstance,$cm,$reports);
 		// Finish the page
 		echo $renderer->footer();
@@ -120,6 +120,12 @@ switch ($showreport){
 	
 	case 'allattempts':
 		$report = new mod_moodlecst_allattempts_report();
+		$formdata = new stdClass();
+		$formdata->cmid=$cm->id;
+		break;
+		
+	case 'latestattemptsummary':
+		$report = new mod_moodlecst_latestattemptsummary_report();
 		$formdata = new stdClass();
 		break;
 		

@@ -84,7 +84,7 @@ function moodlecst_supports($feature) {
 
 /**
  * Implementation of the function for printing the form elements that control
- * whether the course reset functionality affects the englishcentral.
+ * whether the course reset functionality affects the MOODLECST.
  *
  * @param $mform form passed by reference
  */
@@ -145,11 +145,12 @@ function moodlecst_reset_userdata($data) {
                         WHERE l.course=:course";
 
         $params = array ("course" => $data->courseid);
-        $DB->delete_records_select(MOD_MOODLECST_USERTABLE, MOD_MOODLECST_MODNAME . "id IN ($sql)", $params);
+        $DB->delete_records_select(MOD_MOODLECST_ATTEMPTTABLE, MOD_MOODLECST_MODNAME . "id IN ($sql)", $params);
+		$DB->delete_records_select(MOD_MOODLECST_ATTEMPTITEMTABLE, MOD_MOODLECST_MODNAME . "id IN ($sql)", $params);
 
         // remove all grades from gradebook
         if (empty($data->reset_gradebook_grades)) {
-            englishcentral_reset_gradebook($data->courseid);
+            moodlecst_reset_gradebook($data->courseid);
         }
 
         $status[] = array('component'=>$componentstr, 'item'=>get_string('deletealluserdata', MOD_MOODLECST_LANG), 'error'=>false);
@@ -299,10 +300,10 @@ function moodlecst_get_user_grades($moduleinstance, $userid=0) {
     }
 
 	$idfield = 'a.' . MOD_MOODLECST_MODNAME . 'id';
-    if ($moduleinstance->maxattempts==1 || $moduleinstance->gradeoptions == MOD_ENGLISHCENTRAL_GRADELATEST) {
+    if ($moduleinstance->maxattempts==1 || $moduleinstance->gradeoptions == MOD_MOODLECST_GRADELATEST) {
 
         $sql = "SELECT u.id, u.id AS userid, a.sessionscore AS rawgrade
-                  FROM {user} u,  {". MOD_MOODLECST_USERTABLE ."} a
+                  FROM {user} u,  {". MOD_MOODLECST_ATTEMPTTABLE ."} a
                  WHERE u.id = a.userid AND $idfield = :moduleid
                        AND a.status = 1
                        $user";
@@ -311,21 +312,21 @@ function moodlecst_get_user_grades($moduleinstance, $userid=0) {
 		switch($moduleinstance->gradeoptions){
 			case MOD_MOODLECST_GRADEHIGHEST:
 				$sql = "SELECT u.id, u.id AS userid, MAX( a.sessionscore  ) AS rawgrade
-                      FROM {user} u, {". MOD_MOODLECST_USERTABLE ."} a
+                      FROM {user} u, {". MOD_MOODLECST_ATTEMPTTABLE ."} a
                      WHERE u.id = a.userid AND $idfield = :moduleid
                            $user
                   GROUP BY u.id";
 				  break;
 			case MOD_MOODLECST_GRADELOWEST:
 				$sql = "SELECT u.id, u.id AS userid, MIN(  a.sessionscore  ) AS rawgrade
-                      FROM {user} u, {". MOD_MOODLECST_USERTABLE ."} a
+                      FROM {user} u, {". MOD_MOODLECST_ATTEMPTTABLE ."} a
                      WHERE u.id = a.userid AND $idfield = :moduleid
                            $user
                   GROUP BY u.id";
 				  break;
 			case MOD_MOODLECST_GRADEAVERAGE:
             $sql = "SELECT u.id, u.id AS userid, AVG( a.sessionscore  ) AS rawgrade
-                      FROM {user} u, {". MOD_MOODLECST_USERTABLE ."} a
+                      FROM {user} u, {". MOD_MOODLECST_ATTEMPTTABLE ."} a
                      WHERE u.id = a.userid AND $idfield = :moduleid
                            $user
                   GROUP BY u.id";
@@ -357,7 +358,7 @@ function moodlecst_is_complete($course,$cm,$userid,$type) {
 	$idfield = 'a.' . MOD_MOODLECST_MODNAME . 'id';
 	$params = array('moduleid'=>$moduleinstance->id, 'userid'=>$userid);
 	$sql = "SELECT  MAX( sessionscore  ) AS grade
-                      FROM {". MOD_MOODLECST_USERTABLE ."}
+                      FROM {". MOD_MOODLECST_ATTEMPTTABLE ."}
                      WHERE userid = :userid AND " . MOD_MOODLECST_MODNAME . "id = :moduleid";
 	$result = $DB->get_field_sql($sql, $params);
 	if($result===false){return false;}
@@ -404,7 +405,12 @@ function moodlecst_add_instance(stdClass $moodlecst, mod_moodlecst_mod_form $mfo
 
     # You may have to add extra stuff in here #
 
-    return $DB->insert_record(MOD_MOODLECST_TABLE, $moodlecst);
+    $ret = $DB->insert_record(MOD_MOODLECST_TABLE, $moodlecst);
+    
+    // update grade item definition
+    moodlecst_grade_item_update($moodlecst);
+    
+    return $ret;
 }
 
 /**
@@ -426,7 +432,15 @@ function moodlecst_update_instance(stdClass $moodlecst, mod_moodlecst_mod_form $
 
     # You may have to add extra stuff in here #
 
-    return $DB->update_record(MOD_MOODLECST_TABLE, $moodlecst);
+     $DB->update_record(MOD_MOODLECST_TABLE, $moodlecst);
+    
+    // update grade item definition
+    moodlecst_grade_item_update($moodlecst);
+    
+    // update grades - TODO: do it only when grading style changes
+    moodlecst_update_grades($moodlecst, 0, false);
+    
+    return true;
 }
 
 /**

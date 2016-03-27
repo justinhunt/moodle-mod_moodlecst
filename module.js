@@ -145,8 +145,18 @@ M.mod_moodlecst_session = {
 	refreshListbox: function(listbox,listboxdata){
 		var thelistbox = this.get_listbox(listbox);
 		thelistbox.all('option').remove();
+		//if we have a sort list use that
+		//but here we probably wont
+		debugger;
+		if(this.sortorder && this.sortorder.length > 0){
+		 var looplist = this.sortorder;
+		 var usingsort=true;
+		}else{
+		 var looplist = this.listboxdata;
+		 var usingsort=false;
+		}
 		this.gY.Array.each(this.sortorder,function(value){		
-				if(listboxdata.hasOwnProperty(value)){
+				if(listboxdata.hasOwnProperty(value)||usingsort==false){
 					//console.log('key:' + value);
 					//console.log('value:' + listboxdata[value]);
 					thelistbox.append('<option name="' + value + '" value="' + value + '">'+ listboxdata[value] +'</option>');

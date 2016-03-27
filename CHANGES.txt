@@ -1,0 +1,5 @@
+version 2016032602
+added a new sessions scheme. Please do not duplicate items on the the same course though.
+Added a report for all items by user in an activity
+Added ability to delete attempts
+Added gradebook integration

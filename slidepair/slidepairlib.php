@@ -41,6 +41,10 @@ define('MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA', 'pictureitem');
 define('MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA', 'pictureanswer');
 define('MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION', 'itemtext');
 define('MOD_MOODLECST_SLIDEPAIR_TEXTANSWER', 'answertext');
+define('MOD_MOODLECST_SLIDEPAIR_MAXDURATIONBOUNDARIES',5);
+define('MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY', 'timebound');
+define('MOD_MOODLECST_SLIDEPAIR_DIFFICULTY', 'difficulty');
+define('MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE', 'timegrade');
 define('MOD_MOODLECST_SLIDEPAIR_TEXTQUESTION_FILEAREA', 'itemarea');
 define('MOD_MOODLECST_SLIDEPAIR_TEXTANSWER_FILEAREA', 'answerarea');
 define('MOD_MOODLECST_SLIDEPAIR_CORRECTANSWER','correctanswer');
@@ -49,3 +53,52 @@ define('MOD_MOODLECST_SLIDEPAIR_ANSWERSINROW','answersinrow');
 define('MOD_MOODLECST_SLIDEPAIR_ANSWERWIDTH','answerwidth');
 define('MOD_MOODLECST_SLIDEPAIR_MAXANSWERS',4);
 define('MOD_MOODLECST_SLIDEPAIR_TABLE','moodlecst_slidepairs');
+
+function mod_moodlecst_create_slidepairkey(){
+	global $CFG;
+	$prefix = $CFG->wwwroot . '@';
+	return uniqid($prefix, true); 
+}
+
+function mod_moodlecst_create_sql_in($csvlist){
+			$temparray = explode(',',$csvlist);
+			$sql_in = '""';
+			foreach($temparray as $onekey){	
+				if($sql_in == '""'){
+					$sql_in ='';
+				}else{
+					$sql_in .=',';
+				} 
+				$sql_in .= '"' . $onekey . '"' ;
+			}
+			return $sql_in;
+}
+
+function mod_moodlecst_fetch_itemscore($slidepairid, $duration, $correct){
+	global $CFG,$DB;
+	$ret = 0;
+	$sp = $DB->get_record(MOD_MOODLECST_SLIDEPAIR_TABLE,array('id'=>$slidepairid));
+	if($sp){
+		$lowestboundary = 10000000000; //any stupidly high number
+		for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXDURATIONBOUNDARIES;$i++){
+			$durationboundary = $sp->{MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY . $i} * 1000;
+			$durationscore = $sp->{MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE  . $i};
+
+			//if this is not a specified condition ... continue
+			if(($durationscore + $durationboundary) == 0){continue;}
+
+
+			if($duration >= $durationboundary 
+				&& $duration < $lowestboundary 
+			  ){
+					$lowestboundary = $durationboundary;
+					if($durationscore > 0){
+						$ret = ($durationscore / 10);
+					}else{
+						$ret = 0;
+					}//end of if usescore > 0
+			}//end of if duration
+		}//end of for
+	}//end of if $sp
+	return $ret;
+}

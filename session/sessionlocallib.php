@@ -34,26 +34,18 @@ defined('MOODLE_INTERNAL') || die();
 		global $DB;
 		$ret = false;
 		
+		//Delete session
         if (!$DB->delete_records(MOD_MOODLECST_SESSION_TABLE, array('id'=>$itemid))){
-            print_error("Could not delete item");
+            print_error("Could not delete session");
 			return $ret;
         }
-		//remove files
-		$fs= get_file_storage();
+
+		//remove items from MOD_MOODLECST_SESSION_ITEM_TABLE
+		if (!$DB->delete_records(MOD_MOODLECST_SESSION_ITEM_TABLE, array('sessionid'=>$itemid))){
+            print_error("Could not delete session items");
+			return $ret;
+        }
 		
-		$fileareas = array(MOD_MOODLECST_SESSION_TEXTQUESTION_FILEAREA,
-		MOD_MOODLECST_SESSION_TEXTANSWER_FILEAREA . '1',
-		MOD_MOODLECST_SESSION_TEXTANSWER_FILEAREA . '2',
-		MOD_MOODLECST_SESSION_TEXTANSWER_FILEAREA . '3',
-		MOD_MOODLECST_SESSION_TEXTANSWER_FILEAREA . '4',
-		MOD_MOODLECST_SESSION_AUDIOQUESTION_FILEAREA,
-		MOD_MOODLECST_SESSION_AUDIOANSWER_FILEAREA . '1',
-		MOD_MOODLECST_SESSION_AUDIOANSWER_FILEAREA . '2',
-		MOD_MOODLECST_SESSION_AUDIOANSWER_FILEAREA . '3',
-		MOD_MOODLECST_SESSION_AUDIOANSWER_FILEAREA . '4');
-		foreach ($fileareas as $filearea){
-			$fs->delete_area_files($context->id,'mod_moodlecst',$filearea,$itemid);
-		}
 		$ret = true;
 		return $ret;
    } 

@@ -39,10 +39,6 @@ if ($id) {
     $cm         = get_coursemodule_from_id(MOD_MOODLECST_MODNAME, $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $moduleinstance  = $DB->get_record(MOD_MOODLECST_TABLE, array('id' => $cm->instance), '*', MUST_EXIST);
-} elseif ($n) {
-    $moduleinstance  = $DB->get_record(MOD_MOODLECST_TABLE, array('id' => $n), '*', MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
-    $cm         = get_coursemodule_from_instance(MOD_MOODLECST_TABLE, $moduleinstance->id, $course->id, false, MUST_EXIST);
 } else {
     print_error('You must specify a course_module ID or an instance ID');
 }
@@ -129,7 +125,9 @@ foreach($results as $result){
 		//add info to attempt table update
 		$update_data->partnerid = $itemdata->partnerid;
 		$update_data->userid = $itemdata->userid;
-		if($itemdata->correct){$update_data->sessionscore++;}
+		//if($itemdata->correct){$update_data->sessionscore++;}
+		$itemscore = mod_moodlecst_fetch_itemscore($itemdata->slidepairid,$itemdata->duration,$itemdata->correct);
+		$update_data->sessionscore += $itemscore;
 		$update_data->totaltime+=$itemdata->duration;
 	}else{
 		$dbresult->id=0;
@@ -139,8 +137,17 @@ foreach($results as $result){
 	$dbresults[] = $dbresult;
 }
 
+//Lets turn session score into a percentage
+//best to do it here, in case in future the number of items changes
+$update_data->sessionscore = ($update_data->sessionscore * 10) / count($dbresults); 
+
 //update attempt table
 $DB->update_record(MOD_MOODLECST_ATTEMPTTABLE,$update_data);
+
+//update the gradebook
+moodlecst_update_grades($moduleinstance, $attemptdata->userid);
+
+
 
 //return JSON to cst app
 $jsonrenderer = $PAGE->get_renderer(MOD_MOODLECST_FRANKY,'json');

@@ -133,6 +133,60 @@ abstract class moodlecst_add_item_form_base extends moodleform {
 		//time target
 		$mform->addElement('duration', 'timetarget', get_string('timetarget','moodlecst'));
 		
+		//difficulty
+		$diff_options = array();
+		$diff_options['1']='1';
+		$diff_options['2']='2';
+		$diff_options['3']='3';
+		$diff_options['4']='4';
+		$diff_options['5']='5';
+        $controlname = MOD_MOODLECST_SLIDEPAIR_DIFFICULTY;
+        $mform->addElement('select',$controlname, get_string('difficulty', 'moodlecst'),$diff_options);
+        $mform->setType($controlname, PARAM_INT);
+		
+		$mform->addElement('header', 'typeheading', 
+				get_string('durationgradesettings', 'moodlecst'));
+				
+				
+		//options for grading scale by duration		
+		$gradeoptions = array();
+		$gradeoptions['0']='0%';
+		$gradeoptions['10']='10%';
+		$gradeoptions['20']='20%';
+		$gradeoptions['30']='30%';
+		$gradeoptions['40']='40%';
+		$gradeoptions['50']='50%';
+		$gradeoptions['60']='60%';
+		$gradeoptions['70']='70%';
+		$gradeoptions['80']='80%';
+		$gradeoptions['90']='90%';
+		$gradeoptions['100']='100%';
+				
+		for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXDURATIONBOUNDARIES+1; $x++){
+			//add a seperator if not first one 
+			if($x>1){
+				$mform->addElement('static', 'boundary' . $x,null, '<hr/>');
+			}
+		
+		    //max time boundary in seconds
+			$controlname = MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY . $x;
+			$mform->addElement('text',$controlname, get_string('durationboundary', 'moodlecst', $x), array('size'=>10));
+            $mform->setType($controlname, PARAM_INT);
+            $mform->addRule($controlname, get_string('numeric','moodlecst'), 'numeric', null, 'client');
+            if($x < 3){
+            	$mform->addRule($controlname, get_string('required'), 'required', null, 'client');
+            }
+            
+            //boundary associated grade
+            $controlname = MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE . $x;
+            $mform->addElement('select',$controlname, get_string('boundarygrade', 'moodlecst', $x),$gradeoptions);
+            $mform->setType($controlname, PARAM_INT);
+			$mform->addRule($controlname, get_string('numeric','moodlecst'), 'numeric', null, 'client');			
+            if($x < 3){
+            	$mform->addRule($controlname, get_string('required'), 'required', null, 'client');
+			}
+
+        }
 		
         $this->custom_definition();
 		

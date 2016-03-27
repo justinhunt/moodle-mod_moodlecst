@@ -25,6 +25,7 @@
 
 require_once('../../config.php');
 require_once($CFG->dirroot.'/mod/moodlecst/lib.php');
+require_once($CFG->dirroot.'/mod/moodlecst/slidepair/slidepairlib.php');
 
 $id = required_param('id', PARAM_INT);
 
@@ -39,8 +40,9 @@ header("Access-Control-Allow-Origin: *");
 //require_sesskey();
 //require_login($course, false, $cm);
 
+//get the items in the currently active session 
+$items = mod_moodlecst_get_session_items($moodlecst->id);
 
-$items = $DB->get_records(MOD_MOODLECST_SLIDEPAIR_TABLE,array('moodlecst'=>$moodlecst->id),'name ASC');
 $modulecontext = context_module::instance($cm->id);
 $PAGE->set_context($modulecontext);
 $jsonrenderer = $PAGE->get_renderer('mod_moodlecst','json');

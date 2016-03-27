@@ -40,6 +40,7 @@ class mod_moodlecst_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
+    	global $CFG;
 
         $mform = $this->_form;
 
@@ -59,8 +60,11 @@ class mod_moodlecst_mod_form extends moodleform_mod {
         $mform->addHelpButton('name', 'moodlecstname', MOD_MOODLECST_LANG);
 
         // Adding the standard "intro" and "introformat" fields
-        $this->add_intro_editor();
-
+        if($CFG->version < 2015051100){
+        	$this->add_intro_editor();
+        }else{
+        	$this->standard_intro_elements();
+		}
 		
 		//mode options
         $modeoptions = array(MOD_MOODLECST_MODETEACHERSTUDENT => get_string('teacherstudent',MOD_MOODLECST_LANG),
@@ -72,6 +76,7 @@ class mod_moodlecst_mod_form extends moodleform_mod {
 								MOD_MOODLECST_PARTNERMODEAUTO => get_string('autopartners',MOD_MOODLECST_LANG)
 								);
         $mform->addElement('select', 'partnermode', get_string('partnermode', MOD_MOODLECST_LANG), $partnermodeoptions);
+		
 		
 		//attempts
 		/*
@@ -101,6 +106,11 @@ class mod_moodlecst_mod_form extends moodleform_mod {
         $mform->addElement('select', 'timetarget', get_string('timetarget', MOD_MOODLECST_LANG), $timetargetoptions);
 		$mform->setDefault('timetarget', MOD_MOODLECST_TIMETARGET_IGNORE);
 		 
+		
+		
+		// Grade.
+        $this->standard_grading_coursemodule_elements();
+		
 		
         //grade options
         $gradeoptions = array(MOD_MOODLECST_GRADEHIGHEST => get_string('gradehighest',MOD_MOODLECST_LANG),

@@ -107,6 +107,20 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
         $newslidepairid = $DB->insert_record(MOD_MOODLECST_SLIDEPAIR_TABLE, $data);
        $this->set_mapping(MOD_MOODLECST_SLIDEPAIR_TABLE, $oldid, $newslidepairid, true); // Mapping with files
   }
+  
+  protected function process_moodlecst_sessions($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+
+		
+        $data->{MOD_MOODLECST_MODNAME} = $this->get_new_parentid(MOD_MOODLECST_MODNAME);
+        $newsessionid = $DB->insert_record(MOD_MOODLECST_SESSION_TABLE, $data);
+       $this->set_mapping(MOD_MOODLECST_SESSION_TABLE, $oldid, $newsessionid, true); // Mapping with files ..dont need this
+  }
 	
 	protected function process_moodlecst_attempts($data) {
         global $DB;
