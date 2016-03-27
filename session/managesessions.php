@@ -109,6 +109,10 @@ switch($type){
 			$currentslidepairs = $item->slidepairkeys;
 			$slidepair_SQL_IN = mod_moodlecst_create_sql_in($currentslidepairs);
 		}
+		//an empty string do not work so we use a dummy
+		if($slidepair_SQL_IN  == '""'){
+			$slidepair_SQL_IN  = '"@"';
+		}
 
 		//kill any duplicate keys that might have got in here
 		mod_moodlecst_kill_duplicate_slidepairkeys();
