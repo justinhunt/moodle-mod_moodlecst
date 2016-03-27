@@ -54,12 +54,31 @@ define('MOD_MOODLECST_SLIDEPAIR_ANSWERWIDTH','answerwidth');
 define('MOD_MOODLECST_SLIDEPAIR_MAXANSWERS',4);
 define('MOD_MOODLECST_SLIDEPAIR_TABLE','moodlecst_slidepairs');
 
+
+//creates a "unique" slide pair key so that backups and restores won't stuff things
 function mod_moodlecst_create_slidepairkey(){
 	global $CFG;
 	$prefix = $CFG->wwwroot . '@';
 	return uniqid($prefix, true); 
 }
 
+//kill duplicate slidepairkeys, that might arise from a restore
+function mod_moodlecst_kill_duplicate_slidepairkeys(){
+	global $DB;
+	$sql ='SELECT MAX(id) as maxid , COUNT(id) as duplicatecount, ww.* ';
+	$sql .= ' FROM {' . MOD_MOODLECST_SLIDEPAIR_TABLE . '} ww ' ;
+	$sql .= ' GROUP BY slidepairkey HAVING duplicatecount > 1';
+
+	$duplicatekeys = $DB->get_records_sql($sql);
+	if($duplicatekeys){
+		foreach($duplicatekeys as $dkey){
+			$newkey = mod_moodlecst_create_slidepairkey();
+			$DB->set_field(MOD_MOODLECST_SLIDEPAIR_TABLE,'slidepairkey',$newkey,array('id'=>$dkey->maxid));
+		}
+	}
+}
+
+//create a sql 'IN' series of quoted ids 
 function mod_moodlecst_create_sql_in($csvlist){
 			$temparray = explode(',',$csvlist);
 			$sql_in = '""';
@@ -74,9 +93,14 @@ function mod_moodlecst_create_sql_in($csvlist){
 			return $sql_in;
 }
 
+//Fetch the item score of a slidepair depending on users answer and how long took.
 function mod_moodlecst_fetch_itemscore($slidepairid, $duration, $correct){
 	global $CFG,$DB;
 	$ret = 0;
+	
+	//if we were not even correct, just return 0.
+	if(!$correct){return $ret;}
+	
 	$sp = $DB->get_record(MOD_MOODLECST_SLIDEPAIR_TABLE,array('id'=>$slidepairid));
 	if($sp){
 		$lowestboundary = 10000000000; //any stupidly high number

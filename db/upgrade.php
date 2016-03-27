@@ -275,12 +275,17 @@ function xmldb_moodlecst_upgrade($oldversion) {
 			}
         }
         
-        $records = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,$DB->sql_compare_text('slidepairkey') ." = ''");
+        //add a slidepairkey to all records
+        $records = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,
+        	$DB->sql_compare_text('slidepairkey') ." = ''");
 		foreach($records as $record){
 			$DB->set_field(MOD_MOODLECST_SLIDEPAIR_TABLE,'slidepairkey',
 				mod_moodlecst_create_slidepairkey(),array('id'=>$record->id));
 		}
 		
+		//add max grade at the 0 boundary to each slidepair
+		$DB->set_field(MOD_MOODLECST_SLIDEPAIR_TABLE,'timegrade1',
+				100,array());
         
         upgrade_mod_savepoint(true, 2016032601, 'moodlecst');
 	}

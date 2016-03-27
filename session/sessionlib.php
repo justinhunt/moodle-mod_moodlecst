@@ -32,6 +32,10 @@ require_once($CFG->dirroot.'/mod/moodlecst/slidepair/slidepairlib.php');
 //get session items
 function mod_moodlecst_get_session_items($moodlecstid){
 	global $DB;
+	
+	//kill all duplicate slidepairkeys that might creep in during backup restore
+	mod_moodlecst_kill_duplicate_slidepairkeys();
+	
 	$usesession = $DB->get_record(MOD_MOODLECST_SESSION_TABLE,
 			array('moodlecst'=>$moodlecstid, 'active'=>1),'*', IGNORE_MULTIPLE); 
 	if($usesession){

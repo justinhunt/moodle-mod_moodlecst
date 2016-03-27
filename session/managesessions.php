@@ -110,6 +110,8 @@ switch($type){
 			$slidepair_SQL_IN = mod_moodlecst_create_sql_in($currentslidepairs);
 		}
 
+		//kill any duplicate keys that might have got in here
+		mod_moodlecst_kill_duplicate_slidepairkeys();
 
 		//use the same sort ordering columns for all lists so we do not lose things
 		$sqlsortcolumn = 'id';
