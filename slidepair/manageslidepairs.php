@@ -154,6 +154,7 @@ if ($data = $mform->get_data()) {
 		$theitem->tags = $data->tags;
 		$theitem->timetarget = $data->timetarget;
 		$theitem->order = $data->order;
+		$theitem->difficulty = $data->difficulty;
 		$theitem->type = $data->type;
 		if(property_exists($data,MOD_MOODLECST_SLIDEPAIR_SHUFFLEANSWERS)){
 			$theitem->shuffleanswers = $data->{MOD_MOODLECST_SLIDEPAIR_SHUFFLEANSWERS};
@@ -195,6 +196,9 @@ if ($data = $mform->get_data()) {
 						$theitem->{MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE . $i}=0;
 						$theitem->{MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY . $i}=0;
 			}
+			
+			//create a slidepairkey
+			$theitem->slidepairkey = mod_moodlecst_create_slidepairkey();
 			
 			//try to insert it
 			if (!$theitem->id = $DB->insert_record(MOD_MOODLECST_SLIDEPAIR_TABLE,$theitem)){
