@@ -173,7 +173,8 @@ abstract class moodlecst_add_item_form_base extends moodleform {
 			$mform->addElement('text',$controlname, get_string('durationboundary', 'moodlecst', $x), array('size'=>10));
             $mform->setType($controlname, PARAM_INT);
             $mform->addRule($controlname, get_string('numeric','moodlecst'), 'numeric', null, 'client');
-            if($x < 3){
+            if($x < 2){
+            	$mform->setDefault($controlname,0);
             	$mform->addRule($controlname, get_string('required'), 'required', null, 'client');
             }
             
@@ -182,7 +183,8 @@ abstract class moodlecst_add_item_form_base extends moodleform {
             $mform->addElement('select',$controlname, get_string('boundarygrade', 'moodlecst', $x),$gradeoptions);
             $mform->setType($controlname, PARAM_INT);
 			$mform->addRule($controlname, get_string('numeric','moodlecst'), 'numeric', null, 'client');			
-            if($x < 3){
+            if($x < 2){
+            	$mform->setDefault($controlname,100);
             	$mform->addRule($controlname, get_string('required'), 'required', null, 'client');
 			}
 
