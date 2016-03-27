@@ -63,12 +63,12 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
         // XML interesting paths - user data
         ////////////////////////////////////////////////////////////////////////
 		//attempts
-		 $attempts= new restore_path_element(MOD_MOODLECST_USERTABLE,
+		 $attempts= new restore_path_element(MOD_MOODLECST_ATTEMPTTABLE,
                                             '/activity/moodlecst/attempts/attempt');
 		$paths[] = $attempts;
 		 
 		 //items
-		 $attemptitems= new restore_path_element(MOD_MOODLECST_USERTABLE,
+		 $attemptitems= new restore_path_element(MOD_MOODLECST_ATTEMPTITEMTABLE,
                                             '/activity/moodlecst/attempts/attempt/items/item');
 		$paths[] = $attemptitems;
 
@@ -122,7 +122,9 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
        $this->set_mapping(MOD_MOODLECST_SESSION_TABLE, $oldid, $newsessionid, true); // Mapping with files ..dont need this
   }
 	
-	protected function process_moodlecst_attempts($data) {
+	//note these function names are set above in the restore path element
+	//we used the table name there, thats all
+	protected function process_moodlecst_attempt($data) {
         global $DB;
 
         $data = (object)$data;
@@ -135,8 +137,10 @@ class restore_moodlecst_activity_structure_step extends restore_activity_structu
         $newattemptid = $DB->insert_record(MOD_MOODLECST_ATTEMPTTABLE, $data);
        $this->set_mapping(MOD_MOODLECST_ATTEMPTTABLE, $oldid, $newattemptid, false); // Mapping without files
     }
-	
-	protected function process_moodlecst_items($data) {
+    
+	//note these function names are set above in the restore path element
+	//we used the table name there, thats all	
+	protected function process_moodlecst_attemptitem($data) {
         global $DB;
 
         $data = (object)$data;

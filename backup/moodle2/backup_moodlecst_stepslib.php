@@ -59,7 +59,7 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
 		$slidepairs = new backup_nested_element('slidepairs');
 		$slidepair = new backup_nested_element('slidepair', array('id'),array(
 			MOD_MOODLECST_MODNAME, 'name', 'type','visible','itemtext', 'itemformat','itemaudiofname', 'answertext1', 'answertext1format','answertext2', 'answertext2format','answertext3', 'answertext3format','answertext4', 'answertext4format',
-		  'correctanswer','shuffleanswers','answercount','answersinrow','answerwidth','createdby','modifiedby','timecreated','timemodified','difficulty','timebound1','timegrade1','timebound2','timegrade2','timebound3','timegrade3','timebound4','timegrade4','timebound5','timegrade5','slidepairkey'
+		  'correctanswer','shuffleanswers','answercount','answersinrow','answerwidth','createdby','modifiedby','timecreated','timemodified','difficulty','timebound1','timegrade1','timebound2','timegrade2','timebound3','timegrade3','timebound4','timegrade4','timebound5','timegrade5','slidepairkey'));
 		
 		
 		// sessions	
