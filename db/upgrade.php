@@ -243,7 +243,7 @@ function xmldb_moodlecst_upgrade($oldversion) {
 		 upgrade_mod_savepoint(true, 2015053002, 'moodlecst');
 	}
 	
-	if($oldversion < 2016032601){
+	if($oldversion < 2016032603){
 		
 		// Get moodle cst table
         $table = new xmldb_table('moodlecst');
@@ -252,6 +252,26 @@ function xmldb_moodlecst_upgrade($oldversion) {
 		$field = new xmldb_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 		if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
+        }
+        
+        // Get moodle cst table
+        $table = new xmldb_table('moodlecst_sessions');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('moodlecst', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, null, null, 'course');
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'moodlecst');
+        $table->add_field('type', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null, null, 'name');
+        $table->add_field('active', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, null, 'type');
+        $table->add_field('displayorder', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, null, '0', 'active');
+        $table->add_field('slidepairkeys', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'displayorder');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, null, null, 'slidepairkeys');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, null, null, 'timecreated');
+		//add primary key
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        
+         // Conditionally launch create table for quiz_sections.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
         }
 
 		// Get moodle cst table
@@ -287,7 +307,7 @@ function xmldb_moodlecst_upgrade($oldversion) {
 		$DB->set_field(MOD_MOODLECST_SLIDEPAIR_TABLE,'timegrade1',
 				100,array());
         
-        upgrade_mod_savepoint(true, 2016032601, 'moodlecst');
+        upgrade_mod_savepoint(true, 2016032603, 'moodlecst');
 	}
 	
     return true;

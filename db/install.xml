@@ -128,6 +128,9 @@
 			<FIELD NAME="timecreated" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
 			<FIELD NAME="timemodified" TYPE="int" LENGTH="18" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
 		</FIELDS>
+		<KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
 	</TABLE>
   </TABLES>
 </XMLDB>
