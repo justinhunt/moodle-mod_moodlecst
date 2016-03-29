@@ -39,7 +39,7 @@ class moodlecst_scheduled extends \core\task\scheduled_task {
 		
 	public function get_name() {
         // Shown in admin screens
-        return get_string('waitinglisttask', MOD_MOODLECST_LANG);
+        return get_string('moodlecsttask', MOD_MOODLECST_LANG);
     }
 	
 	 /**

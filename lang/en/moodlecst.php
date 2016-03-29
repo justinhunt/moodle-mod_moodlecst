@@ -197,6 +197,7 @@ $string['slidepairchooser'] = 'Slidepair Chooser';
 $string['listheight'] = 'List Height';
 $string['listheightdetails'] = 'The list size of the select box containing slidepairs when creating new sessions.';
 $string['nodataavailable'] = 'No data available';
+$string['moodlecsttask'] = 'Moodle CST Task';
 
 //slidepairs
 $string['durationgradesettings'] = 'Grade Settings ';

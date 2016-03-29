@@ -47,7 +47,8 @@ class event_observer{
 		//MOD_MOODLECST_TABLE should be deleted elsewhere
 		//this is just to demonstrate how to handle an event. 
 		//It is probably not even necessary to clear data from here when a course is deleted.
-		$ret = $DB->delete_records(MOD_MOODLECST_USERTABLE,array('courseid'=>$event->objectid));
+		$ret = $DB->delete_records(MOD_MOODLECST_ATTEMPTITEMTABLE,array('courseid'=>$event->objectid));
+		$ret = $DB->delete_records(MOD_MOODLECST_ATTEMPTTABLE,array('courseid'=>$event->objectid));
 		return $ret;
 	}
 }
