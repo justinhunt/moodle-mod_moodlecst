@@ -417,7 +417,11 @@ class mod_moodlecst_latestattemptsummary_report extends mod_moodlecst_base_repor
 			$this->fields[]='item_duration_' . $item;
 		}
 		
-		$currentuserid=0;
+		//sometimes we get a userid of 0 ... this is odd
+		//how does that happen. Anyway default is -1 which means the first
+		//pass of data processing will detect a new user data set
+		$currentuserid=-1;
+		
 		$rawdatarow = false;
 		foreach($itemsbyuser as $useritem){
 			//data is a series of rows each of a diff slidepair grouped by user
