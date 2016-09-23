@@ -73,7 +73,10 @@ function mod_moodlecst_kill_duplicate_slidepairkeys(){
 	if($duplicatekeys){
 		foreach($duplicatekeys as $dkey){
 			$newkey = mod_moodlecst_create_slidepairkey();
-			$DB->set_field(MOD_MOODLECST_SLIDEPAIR_TABLE,'slidepairkey',$newkey,array('id'=>$dkey->maxid));
+			$DB->set_field(MOD_MOODLECST_SLIDEPAIR_TABLE,
+				'slidepairkey',
+				$newkey,
+				array('id'=>$dkey->maxid));
 		}
 	}
 }
@@ -129,6 +132,7 @@ function mod_moodlecst_fetch_itemscore($slidepairid, $duration, $correct){
 					}else{
 						$ret = 0;
 					}//end of if usescore > 0
+					return $ret;
 			}//end of if duration
 		}//end of for
 	}//end of if $sp
