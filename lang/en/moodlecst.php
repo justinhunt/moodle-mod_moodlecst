@@ -179,7 +179,7 @@ $string['oneslidepairreport'] = 'One Slidepair Report';
 $string['oneslidepairheading'] = 'One Slidepair Report';
 $string['username'] = 'User';
 $string['partnername'] = 'Partner';
-$string['sessionscore'] = 'Score';
+$string['sessionscore'] = 'Score(%)';
 $string['totaltime'] = 'Total Time';
 $string['slidepairname'] = 'Slidepair';
 $string['correct'] = 'Correct';
@@ -227,3 +227,6 @@ $string['deletesession'] = 'delete session';
 $string['active'] = 'Active';
 $string['normal'] = 'Normal';
 $string['slidepaircount'] = 'Items';
+
+$string['points'] = 'Points';
+

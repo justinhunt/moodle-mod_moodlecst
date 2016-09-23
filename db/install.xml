@@ -59,6 +59,7 @@
 		<FIELD NAME="slidepairid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" />
 		<FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" />
 		<FIELD NAME="answerid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" />
+		<FIELD NAME="points" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" DEFAULT="0" />
 		<FIELD NAME="consent" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" />
 		<FIELD NAME="correct" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="" />
 		<FIELD NAME="duration" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="" />

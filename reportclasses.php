@@ -468,7 +468,7 @@ class mod_moodlecst_latestattemptsummary_report extends mod_moodlecst_base_repor
 class mod_moodlecst_oneattempt_report extends  mod_moodlecst_base_report {
 	
 	protected $report="oneattempt";
-	protected $fields = array('id','slidepairname','answer','correct','totaltime','timecreated');	
+	protected $fields = array('id','slidepairname','answer','correct','points','totaltime','timecreated');	
 	protected $headingdata = null;
 	protected $qcache=array();
 	protected $ucache=array();

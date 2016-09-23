@@ -119,6 +119,9 @@ foreach($results as $result){
 	foreach($itemprops as $key=>$value){
 		$itemdata->{$key}=$value;
 	}
+	$itemdata->points = mod_moodlecst_fetch_itemscore($itemdata->slidepairid,
+				$itemdata->duration,
+				$itemdata->correct);
 	$itemdata->timecreated =time();
 	$itemdata->timemodified =0;
 	
@@ -131,12 +134,8 @@ foreach($results as $result){
 		//add info to attempt table update
 		$update_data->partnerid = $itemdata->partnerid;
 		$update_data->userid = $itemdata->userid;
-		//if($itemdata->correct){$update_data->sessionscore++;}
-		$itemscore = mod_moodlecst_fetch_itemscore($itemdata->slidepairid,
-				$itemdata->duration,
-				$itemdata->correct);
 		$attempted_slidepairs[] = $itemdata->slidepairid;
-		$update_data->sessionscore += $itemscore;
+		$update_data->sessionscore += $itemdata->points;
 		$update_data->totaltime+=$itemdata->duration;
 	}else{
 		$dbresult->id=0;
