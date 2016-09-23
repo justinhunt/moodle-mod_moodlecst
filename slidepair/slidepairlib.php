@@ -93,8 +93,51 @@ function mod_moodlecst_create_sql_in($csvlist){
 			return $sql_in;
 }
 
+//Fetch the total possible grade of a set of slidepairs
+function mod_moodlecst_fetch_maxpossiblescore($slidepairids){
+	global $DB;
+	$total = 0;
+	$select = 'id IN (' . $slidepairids .')';
+	$slidepairs = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,$select);
+	foreach($slidepairs as $slidepair){
+		$total+= $slidepair->{MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE  . "1"};
+	}
+	return $total;
+}
+
 //Fetch the item score of a slidepair depending on users answer and how long took.
 function mod_moodlecst_fetch_itemscore($slidepairid, $duration, $correct){
+	global $CFG,$DB;
+	$ret = 0;
+	
+	//if we were not even correct, just return 0.
+	if(!$correct){return $ret;}
+	
+	$sp = $DB->get_record(MOD_MOODLECST_SLIDEPAIR_TABLE,array('id'=>$slidepairid));
+	if($sp){
+		for($i=1;$i<=MOD_MOODLECST_SLIDEPAIR_MAXDURATIONBOUNDARIES;$i++){
+			$durationboundary = $sp->{MOD_MOODLECST_SLIDEPAIR_DURATIONBOUNDARY . $i} * 1000;
+			$durationscore = $sp->{MOD_MOODLECST_SLIDEPAIR_BOUNDARYGRADE  . $i};
+
+			//if this is not a specified condition ... continue
+			if(($durationscore + $durationboundary) == 0){continue;}
+
+			//If we are lower than the boundary, set the score and return
+			if($duration < $durationboundary ){
+					if($durationscore > 0){
+						$ret = $durationscore;
+					}else{
+						$ret = 0;
+					}//end of if usescore > 0
+			}//end of if duration
+		}//end of for
+	}//end of if $sp
+	return $ret;
+}
+
+
+//Fetch the item score of a slidepair depending on users answer and how long took.
+function mod_moodlecst_old_fetch_itemscore($slidepairid, $duration, $correct){
 	global $CFG,$DB;
 	$ret = 0;
 	

@@ -463,7 +463,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 * @param lesson $lesson
 	 * @return string
 	 */
-	 public function render_tasks_json($title,$context,$items,$moodlecst) {
+	 public function render_tasks_json($title,$context,$items,$moodlecst,$cm) {
 		$config  = get_config(MOD_MOODLECST_FRANKY);
 		
 		//count the number of slidepairs and sessions
@@ -539,7 +539,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		//process our tasks
 		$tasks = array();
 		foreach($items as $item){
-			$tasks[] = $this->render_slidepair($context,$item);
+			$tasks[] = $this->render_slidepair($context,$item,$cm);
 		}
 		$test->tasks = $tasks;
 		
@@ -580,7 +580,9 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 * @param lesson $lesson
 	 * @return string
 	 */
-	 public function render_slidepair($context,$item) {
+	 public function render_slidepair($context,$item,$cm) {
+	 global $DB;
+	 
 		$theitem = new stdClass;
 		$theitem->id = $this->fetch_item_id($item->type, $item);
 		if(!isset($item->timetarget)){
@@ -588,16 +590,37 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		}
 		$theitem->timetarget=$item->timetarget;
 
+
+	//Items from a different moodlecst will have a different context, so we need to fetch
+	//this needs to be optimised: JUSTIN 20160922
+	if(property_exists($item,'moodlecst')){
+		$moduleid = $cm->module;
+		$item_cm_id = $DB->get_field('course_modules',
+		'id',array('module'=>$moduleid,'instance'=>$item->moodlecst),
+		IGNORE_MULTIPLE);
+		
+		//we have a problem of orphan slidepairs when moodlecsts are deleted (restored?)
+		//This will stop errors being thrown, but won't deliver the correct context
+		//TO DO Justin 20160922
+		if($item_cm_id){
+			$item_context = context_module::instance($item_cm_id);
+		}else{
+			$item_context = $context;
+		}
+	}else{
+		$item_context = $context;
+	}
+
 		switch($item->type){
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_PICTURECHOICE:
 				$theitem->type='Productive';
 				$theitem->subType='picture';
-				$theitem->content=$this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA,$item);
+				$theitem->content=$this->fetch_media_url($item_context,MOD_MOODLECST_SLIDEPAIR_PICTUREQUESTION_FILEAREA,$item);
 				$answers = array();
 				for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXANSWERS+1;$x++){
 					$theanswer= new stdClass;
 					$theanswer->id = $x;
-					$theanswer->img = $this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $x,$item);
+					$theanswer->img = $this->fetch_media_url($item_context,MOD_MOODLECST_SLIDEPAIR_PICTUREANSWER_FILEAREA . $x,$item);
 					$theanswer->correct = ($x==$item->{MOD_MOODLECST_SLIDEPAIR_CORRECTANSWER});
 					$answers[] = $theanswer;
 				}
@@ -626,7 +649,7 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 			case MOD_MOODLECST_SLIDEPAIR_TYPE_TEXTCHOICE:
 				$theitem->type='Productive';
 				$theitem->subType='listen';
-				$theitem->content=$this->fetch_media_url($context,MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA,$item);
+				$theitem->content=$this->fetch_media_url($item_context,MOD_MOODLECST_SLIDEPAIR_AUDIOQUESTION_FILEAREA,$item);
 				$answers = array();
 				for($x=1;$x<MOD_MOODLECST_SLIDEPAIR_MAXANSWERS+1;$x++){
 					$theanswer= new stdClass;

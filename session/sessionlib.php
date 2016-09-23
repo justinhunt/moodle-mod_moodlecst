@@ -35,6 +35,8 @@ function mod_moodlecst_get_session_items($moodlecstid){
 	
 	//kill all duplicate slidepairkeys that might creep in during backup restore
 	mod_moodlecst_kill_duplicate_slidepairkeys();
+	//run it twice ... just in case ...
+	mod_moodlecst_kill_duplicate_slidepairkeys();
 	
 	$usesession = $DB->get_record(MOD_MOODLECST_SESSION_TABLE,
 			array('moodlecst'=>$moodlecstid, 'active'=>1),'*', IGNORE_MULTIPLE); 

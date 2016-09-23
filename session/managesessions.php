@@ -118,21 +118,29 @@ switch($type){
 		mod_moodlecst_kill_duplicate_slidepairkeys();
 
 		//use the same sort ordering columns for all lists so we do not lose things
-		$sqlsortcolumn = 'id';
+		$sqlsortcolumn = 'name';
 		//use the same fields as output for all lists
-		$sqlselectedfields = 'slidepairkey,name';		
+		$sqlselectedfields = "slidepairkey, CONCAT(mt.name, ' ', mst.name) as name ";		
 		
 		//need to get CHOSENDATA and UNCHOSEN data for our chooser component
+		/*
 		$chosendata= $DB->get_records_select_menu(MOD_MOODLECST_SLIDEPAIR_TABLE,
 				'slidepairkey IN (' . $slidepair_SQL_IN . ')',array(),$sqlsortcolumn,$sqlselectedfields);
 		
 		$unchosendata = $DB->get_records_select_menu(MOD_MOODLECST_SLIDEPAIR_TABLE,
-				'NOT slidepairkey IN (' . $slidepair_SQL_IN . ')',array(),$sqlsortcolumn,$sqlselectedfields);
+				'NOT slidepairkey IN (' . $slidepair_SQL_IN . ') ',array(),$sqlsortcolumn,$sqlselectedfields);
+		*/		
+		
+		$chosendata= $DB->get_records_sql_menu('SELECT ' . $sqlselectedfields . ' FROM {' . MOD_MOODLECST_SLIDEPAIR_TABLE . '} mst INNER JOIN {' . MOD_MOODLECST_TABLE . '} mt ON mst.moodlecst = mt.id WHERE 
+				 slidepairkey IN (' . $slidepair_SQL_IN . ') ORDER BY ' . $sqlsortcolumn ,array());		
+		
+		$unchosendata = $DB->get_records_sql_menu('SELECT ' . $sqlselectedfields . ' FROM {' . MOD_MOODLECST_SLIDEPAIR_TABLE . '} mst INNER JOIN {' . MOD_MOODLECST_TABLE . '} mt ON mst.moodlecst = mt.id WHERE 
+				NOT slidepairkey IN (' . $slidepair_SQL_IN . ') ORDER BY ' . $sqlsortcolumn,array());		
+				
 
 		//sort order is kind of needed or else the items get all over the place
 		//we fetch the sort order and pass it on to the chooser
-		$sortorder_result = $DB->get_records_menu(MOD_MOODLECST_SLIDEPAIR_TABLE,
-				array(),$sqlsortcolumn,$sqlselectedfields);
+		$sortorder_result = $DB->get_records_sql_menu('SELECT ' . $sqlselectedfields . ' FROM {' . MOD_MOODLECST_SLIDEPAIR_TABLE . '} mst INNER JOIN {' . MOD_MOODLECST_TABLE . '} mt ON mst.moodlecst = mt.id  ORDER BY ' . $sqlsortcolumn,array());
 		$sortorder =array_keys($sortorder_result);
 				
 		$chooser = $session_renderer->fetch_chooser($chosendata,$unchosendata);

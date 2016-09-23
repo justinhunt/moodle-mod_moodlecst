@@ -201,8 +201,8 @@ $string['moodlecsttask'] = 'Moodle CST Task';
 
 //slidepairs
 $string['durationgradesettings'] = 'Grade Settings ';
-$string['durationboundary']='{$a}: Time(seconds) taken equal or greater than ';
-$string['boundarygrade']='{$a}: percent grade ';
+$string['durationboundary']='{$a}: Completion time less than (seconds)';
+$string['boundarygrade']='{$a}: points ';
 $string['numeric']='Must be numeric ';
 $string['difficulty']='Difficulty ';
 $string['latestattemptsummary']= 'Latest Attempt Summary: {$a}';

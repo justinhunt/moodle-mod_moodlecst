@@ -310,5 +310,38 @@ function xmldb_moodlecst_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016032603, 'moodlecst');
 	}
 	
+	if($oldversion < 2016092103){
+		$records = $DB->get_records(MOD_MOODLECST_SLIDEPAIR_TABLE);
+		foreach($records as $record){
+			
+			//update time grades
+			if($record->timegrade1 > 0){
+				$record->timegrade1 = $record->timegrade1 / 10;
+			}
+			if($record->timegrade2 > 0){
+				$record->timegrade2 = $record->timegrade2 / 10;
+			}
+			if($record->timegrade3 > 0){
+				$record->timegrade3 = $record->timegrade3 / 10;
+			}
+			if($record->timegrade4 > 0){
+				$record->timegrade4 = $record->timegrade4 / 10;
+			}
+			if($record->timegrade5 > 0){
+				$record->timegrade5 = $record->timegrade5 / 10;
+			}
+			
+			//update time bounds
+			$record->timebound1 = $record->timebound2;
+			$record->timebound2 = $record->timebound3;
+			$record->timebound3 = $record->timebound4;
+			$record->timebound4 = $record->timebound5;
+			$record->timebound5 = 0;
+
+			//update record
+			$DB->update_record(MOD_MOODLECST_SLIDEPAIR_TABLE,$record);								 
+		}
+		upgrade_mod_savepoint(true, 2016092103, 'moodlecst');	
+	}
     return true;
 }

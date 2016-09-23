@@ -180,6 +180,12 @@ function moodlecst_reset_userdata($data) {
  */
 function moodlecst_grade_item_update($moduleinstance, $grades=null) {
     global $CFG;
+    
+    //check for brand new instance
+    if(!$moduleinstance || !property_exists($moduleinstance,'id')){
+    	return 0;
+    }
+    
     if (!function_exists('grade_update')) { //workaround for buggy PHP versions
         require_once($CFG->libdir.'/gradelib.php');
     }

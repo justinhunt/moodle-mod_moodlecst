@@ -89,13 +89,18 @@ $dbresults=array();
 $attemptdata = new stdClass;
 $attemptdata->course =$course->id;
 $attemptdata->userid =$USER->id;
+$attemptdata->partnerid =0;
 $attemptdata->moodlecstid =$cm->instance;
 $attemptdata->mode =$moduleinstance->mode;
 $attemptdata->status =0;
 $attemptdata->sessionscore =0;
+$attemptdata->totaltime =0;
 $attemptdata->timecreated =time();
 $attemptdata->timemodified =0;
 $attemptid = $DB->insert_record(MOD_MOODLECST_ATTEMPTTABLE,$attemptdata);
+
+//keep a record of the slidepair ids that were used
+$attempted_slidepairs = array();
 
 //prepare our update object for adding summmary from items to attempt
 $update_data = new stdClass();
@@ -119,6 +124,7 @@ foreach($results as $result){
 	
 	$dbresult = new stdClass;
 	$dbresult->id=$DB->insert_record(MOD_MOODLECST_ATTEMPTITEMTABLE,$itemdata);
+	
 	if($dbresult->id){
 		$dbresult->error='';
 		$dbresult->success=true;
@@ -126,7 +132,10 @@ foreach($results as $result){
 		$update_data->partnerid = $itemdata->partnerid;
 		$update_data->userid = $itemdata->userid;
 		//if($itemdata->correct){$update_data->sessionscore++;}
-		$itemscore = mod_moodlecst_fetch_itemscore($itemdata->slidepairid,$itemdata->duration,$itemdata->correct);
+		$itemscore = mod_moodlecst_fetch_itemscore($itemdata->slidepairid,
+				$itemdata->duration,
+				$itemdata->correct);
+		$attempted_slidepairs[] = $itemdata->slidepairid;
 		$update_data->sessionscore += $itemscore;
 		$update_data->totaltime+=$itemdata->duration;
 	}else{
@@ -139,14 +148,16 @@ foreach($results as $result){
 
 //Lets turn session score into a percentage
 //best to do it here, in case in future the number of items changes
-$update_data->sessionscore = ($update_data->sessionscore * 10) / count($dbresults); 
+$slidepairids = implode(',',$attempted_slidepairs);
+$maxpoints = mod_moodlecst_fetch_maxpossiblescore($slidepairids);
+$rawpercent =  (100 * $update_data->sessionscore) / $maxpoints; 
+$update_data->sessionscore = round($rawpercent,0);
 
 //update attempt table
 $DB->update_record(MOD_MOODLECST_ATTEMPTTABLE,$update_data);
 
 //update the gradebook
 moodlecst_update_grades($moduleinstance, $attemptdata->userid);
-
 
 
 //return JSON to cst app
