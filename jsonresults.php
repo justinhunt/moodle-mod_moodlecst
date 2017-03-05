@@ -95,6 +95,8 @@ $attemptdata->mode =$moduleinstance->mode;
 $attemptdata->status =0;
 $attemptdata->sessionscore =0;
 $attemptdata->totaltime =0;
+$attemptdata->ucatenabled =$moduleinstance->ucatenabled;
+$attemptdata->ability =0;
 $attemptdata->timecreated =time();
 $attemptdata->timemodified =0;
 $attemptid = $DB->insert_record(MOD_MOODLECST_ATTEMPTTABLE,$attemptdata);
@@ -124,6 +126,7 @@ foreach($results as $result){
 				$itemdata->correct);
 	$itemdata->timecreated =time();
 	$itemdata->timemodified =0;
+    $itemdata->difficulty = mod_moodlecst_fetch_itemdifficulty($itemdata->slidepairid);
 	
 	$dbresult = new stdClass;
 	$dbresult->id=$DB->insert_record(MOD_MOODLECST_ATTEMPTITEMTABLE,$itemdata);
@@ -152,6 +155,16 @@ $maxpoints = mod_moodlecst_fetch_maxpossiblescore($slidepairids);
 $rawpercent =  (100 * $update_data->sessionscore) / $maxpoints; 
 $update_data->sessionscore = round($rawpercent,0);
 
+//Store UCAT data
+$update_data->ability=0;
+if($moduleinstance->ucatenabled) {
+    $slidepairs = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,
+        'id IN (' . $slidepairids . ')', array(), 'moodlecst, id ASC');
+    $currentability = 0;
+    $abilitydata = \mod_moodlecst\ucat::process_answer($slidepairs, $results, $currentability);
+    $update_data->ucatenabled=$moduleinstance->ucatenabled;
+    $update_data->ability=$abilitydata->ability;
+}
 //update attempt table
 $DB->update_record(MOD_MOODLECST_ATTEMPTTABLE,$update_data);
 
@@ -162,4 +175,4 @@ moodlecst_update_grades($moduleinstance, $attemptdata->userid);
 //return JSON to cst app
 $jsonrenderer = $PAGE->get_renderer(MOD_MOODLECST_FRANKY,'json');
 //header("Access-Control-Allow-Origin: *");
-echo $jsonrenderer->render_results_json($dbresults);
+echo $jsonrenderer->render_results_json($dbresults,$update_data->ability);

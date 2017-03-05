@@ -90,6 +90,23 @@ $redirecturl = new moodle_url('/mod/moodlecst/slidepair/slidepairs.php', array('
     	require_sesskey();
 		$success = mod_moodlecst_slidepair_delete_item($moodlecst,$itemid,$context);
         redirect($redirecturl);
+    }elseif ( $action=='duplicate'){
+
+        $theitem = $DB->get_record(MOD_MOODLECST_SLIDEPAIR_TABLE,array('id'=>$itemid));
+        if($theitem) {
+            unset($theitem->id);
+            //create a slidepairkey
+            $theitem->slidepairkey = mod_moodlecst_create_slidepairkey();
+            $theitem->name = $theitem->name . '(copy)';
+            if (!$theitem->id = $DB->insert_record(MOD_MOODLECST_SLIDEPAIR_TABLE, $theitem)) {
+                error("Could not duplicate moodlecst item!");
+                redirect($redirecturl);
+            }else{
+                $edititemurl=new moodle_url('/mod/moodlecst/slidepair/manageslidepairs.php', array('id'=>$cm->id,'itemid'=>$theitem->id));
+                redirect($edititemurl);
+            }
+        }
+
     }
 
 

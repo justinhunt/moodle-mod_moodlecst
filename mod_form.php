@@ -104,7 +104,7 @@ class mod_moodlecst_mod_form extends moodleform_mod {
                             MOD_MOODLECST_TIMETARGET_SHOW => get_string('timetargetshow', MOD_MOODLECST_LANG),
                             MOD_MOODLECST_TIMETARGET_FORCE => get_string('timetargetforce', MOD_MOODLECST_LANG));
         $mform->addElement('select', 'timetarget', get_string('timetarget', MOD_MOODLECST_LANG), $timetargetoptions);
-		$mform->setDefault('timetarget', MOD_MOODLECST_TIMETARGET_FORCE);
+		$mform->setDefault('timetarget', MOD_MOODLECST_TIMETARGET_IGNORE);
 		 
 		
 		
@@ -119,7 +119,33 @@ class mod_moodlecst_mod_form extends moodleform_mod {
                             MOD_MOODLECST_GRADEAVERAGE => get_string('gradeaverage', MOD_MOODLECST_LANG),
 							MOD_MOODLECST_GRADENONE => get_string('gradenone', MOD_MOODLECST_LANG));
         $mform->addElement('select', 'gradeoptions', get_string('gradeoptions', MOD_MOODLECST_LANG), $gradeoptions);
-		
+
+        //-------------------------------------------------------------------------------
+        // Adding the "UCAT" fieldset, where all the ucatmode settings are showed
+        $mform->addElement('header', 'ucatelements', get_string('ucatelements', MOD_MOODLECST_LANG));
+
+        $mform->addElement('selectyesno', 'ucatenabled', get_string('enableucat',MOD_MOODLECST_LANG ));
+
+        $opts_endcondition = array(
+            \mod_moodlecst\ucat::ENDCOND_ALL => get_string('allitems', MOD_MOODLECST_LANG),
+            \mod_moodlecst\ucat::ENDCOND_NUMQUEST => get_string('byreqitems', MOD_MOODLECST_LANG),
+            \mod_moodlecst\ucat::ENDCOND_SE => get_string('byse', MOD_MOODLECST_LANG),
+            \mod_moodlecst\ucat::ENDCOND_NUMQUESTANDSE => get_string('byreqitemsandse', MOD_MOODLECST_LANG)
+        );
+        $mform->addElement('select', 'ucatendcondition', get_string('endcondition', MOD_MOODLECST_LANG), $opts_endcondition);
+
+        $mform->addElement('text', 'ucatreqitems', get_string('reqitems', MOD_MOODLECST_LANG), array('size' => 4));
+        $mform->setType('ucatreqitems', PARAM_INT);
+        $mform->setDefault('ucatreqitems', 1);
+
+        $mform->addElement('text', 'ucatse', get_string('se', MOD_MOODLECST_LANG), array('size' => 8));
+        $mform->setType('ucatse', PARAM_FLOAT);
+        $mform->setDefault('ucatse', 0);
+
+        $mform->addElement('text', 'ucatlogitbias', get_string('logitbias', MOD_MOODLECST_LANG), ['size' => 8]);
+        $mform->setType('ucatlogitbias', PARAM_FLOAT);
+        $mform->setDefault('ucatlogitbias', 0);
+
 
         //-------------------------------------------------------------------------------
         // add standard elements, common to all modules

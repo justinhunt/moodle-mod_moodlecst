@@ -103,9 +103,10 @@ class mod_moodlecst_renderer extends plugin_renderer_base {
 		$activityid = $cm->id;
 		$sesskey = $USER->sesskey;
 		$userid = $USER->id;
+		$ucatenabled=$moodlecst->ucatenabled;
 		$partnermode = $moodlecst->partnermode==MOD_MOODLECST_PARTNERMODEAUTO ? 'auto' : 'manual';
 		$mode = $moodlecst->mode==MOD_MOODLECST_MODETEACHERSTUDENT ? 'teacherstudent' : 'studentstudent';
-		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'sessionid'=>1,'mode'=>$mode,'partnermode'=>$partnermode);
+		$urlparams = array('sesskey'=>$sesskey,'activityid'=>$activityid,'userid'=>$userid,'sessionid'=>1,'mode'=>$mode,'partnermode'=>$partnermode,'ucatenabled'=>$ucatenabled);
 		switch($moodlecst->mode){
 			case MOD_MOODLECST_MODESTUDENTSTUDENT:
 				//the client gets confused if no seat set, so by default 
@@ -250,7 +251,6 @@ class mod_moodlecst_report_renderer extends plugin_renderer_base {
 			 echo $datarow . $newline;
 		}
         exit();
-        break;
 	}
 
 	public function render_section_html($sectiontitle, $report, $head, $rows, $fields) {
@@ -321,12 +321,13 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 	 * @param lesson $lesson
 	 * @return string
 	 */
-	 public function render_results_json($results){
+	 public function render_results_json($results,$ability){
 		$result = new stdClass;
 		$status ='success';
 		$progress = $results;
 		$result->status=$status;
 		$result->progess=$progress;
+		$result->ability=$ability;
 		return json_encode($result);
 	 }
 	 
@@ -368,6 +369,16 @@ class mod_moodlecst_json_renderer extends plugin_renderer_base {
 		}
 		return $sessioncount;
 	}
+
+    /**
+     * Return json for the next task/question/slidepair/item
+     *
+     * @param stdClass $task
+     * @return string json'ifed task
+     */
+	public function render_next_json($task){
+        return json_encode($task);
+    }
 
 	 /**
 	 * Return json for sessions (session = array of taskids)

@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/reportclasses.php');
 
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
-$n  = optional_param('n', 0, PARAM_INT);  // englishcentral instance ID - it should be named as the first character of the module
+$n  = optional_param('n', 0, PARAM_INT);  // MoodleCST instance ID - it should be named as the first character of the module
 $format = optional_param('format', 'html', PARAM_TEXT); //export format csv or html
 $showreport = optional_param('report', 'menu', PARAM_TEXT); // report type
 $questionid = optional_param('questionid', 0, PARAM_INT); // report type
@@ -107,7 +107,13 @@ switch ($showreport){
 	//not a true report, separate implementation in renderer
 	case 'menu':
 		echo $renderer->header($moduleinstance, $cm, $mode, null, get_string('reports', MOD_MOODLECST_LANG));
-		$reports =array('basic','allattempts','allslidepairs','latestattemptsummary');
+		$reports =array('basic','allattempts','allslidepairs');
+		if($moduleinstance->ucatenabled){
+		    $reports[]= 'allabilities';
+        }else{
+            $reports[]= 'latestattemptsummary';
+        }
+
 		echo $reportrenderer->render_reportmenu($moduleinstance,$cm,$reports);
 		// Finish the page
 		echo $renderer->footer();
@@ -123,8 +129,20 @@ switch ($showreport){
 		$formdata = new stdClass();
 		$formdata->cmid=$cm->id;
 		break;
-		
-	case 'latestattemptsummary':
+
+    case 'allabilities':
+        $report = new mod_moodlecst_allabilities_report();
+        $formdata = new stdClass();
+        $formdata->cmid=$cm->id;
+        break;
+//unused : faulty
+    case 'latestabilitysummary':
+        $report = new mod_moodlecst_latestabilitysummary_report();
+        $formdata = new stdClass();
+        break;
+
+
+    case 'latestattemptsummary':
 		$report = new mod_moodlecst_latestattemptsummary_report();
 		$formdata = new stdClass();
 		break;

@@ -86,9 +86,9 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 			get_string('itemtype', 'moodlecst'),
 			get_string('actions', 'moodlecst')
 		);
-		$table->headspan = array(1,1,2);
+		$table->headspan = array(1,1,3);
 		$table->colclasses = array(
-			'itemname', 'itemtitle', 'edit','delete'
+			'itemname', 'itemtitle', 'edit','duplicate','delete'
 		);
 
 		//sort by start date
@@ -125,6 +125,10 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 			$editurl = new moodle_url($actionurl, array('id'=>$cm->id,'itemid'=>$item->id));
 			$editlink = html_writer::link($editurl, get_string('edititem', 'moodlecst'));
 			$editcell = new html_table_cell($editlink);
+
+            $duplicateurl = new moodle_url($actionurl, array('id'=>$cm->id,'itemid'=>$item->id,'action'=>'duplicate'));
+            $duplicatelink = html_writer::link($duplicateurl, get_string('duplicateitem', 'moodlecst'));
+            $duplicatecell = new html_table_cell($duplicatelink);
 			
 			//$previewlink = $this->fetch_preview_link($item->id,$moodlecst->id);
 			//$previewcell = new html_table_cell($previewlink);
@@ -134,7 +138,7 @@ class mod_moodlecst_slidepair_renderer extends plugin_renderer_base {
 			$deletecell = new html_table_cell($deletelink);
 
 			$row->cells = array(
-				$itemnamecell, $itemtypecell, $editcell, $deletecell
+				$itemnamecell, $itemtypecell, $editcell,$duplicatecell, $deletecell
 			);
 			$table->data[] = $row;
 		}

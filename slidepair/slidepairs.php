@@ -54,11 +54,11 @@ echo $renderer->header($moodlecst, $cm, $mode, null, get_string('slidepairs', 'm
     
     //if have edit permission, show edit buttons
     if(has_capability('mod/moodlecst:itemview', $context)){
-    	echo $slidepair_renderer ->add_edit_page_links($moodlecst);
+    	echo $slidepair_renderer->add_edit_page_links($moodlecst);
     }
 
 //if we have items, show em
 if($items){
-	echo $slidepair_renderer ->show_items_list($items,$moodlecst,$cm);
+	echo $slidepair_renderer->show_items_list($items,$moodlecst,$cm);
 }
 echo $renderer->footer();

@@ -29,6 +29,10 @@ require_once($CFG->dirroot.'/mod/moodlecst/lib.php');
 $id = required_param('id', PARAM_INT);
 $type = required_param('type',PARAM_TEXT);
 $userid = optional_param('userId',0, PARAM_INT);
+$currenttaskid = optional_param('currenttaskid',0, PARAM_INT);
+$responsedata= optional_param('responsedata', '{}', PARAM_RAW); // data baby yeah
+$questiondata= optional_param('questiondata', '{}', PARAM_RAW); // data baby yeah
+
 $cm = get_coursemodule_from_id('moodlecst', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $moodlecst = $DB->get_record('moodlecst', array('id' => $cm->instance), '*', MUST_EXIST);
@@ -47,6 +51,12 @@ $jsonrenderer = $PAGE->get_renderer('mod_moodlecst','json');
 header("Access-Control-Allow-Origin: *");
 
 switch($type){
+    case 'ucatnext':
+        $responsedata = json_decode($responsedata);
+        $questiondata = json_decode($questiondata);
+        $next= \mod_moodlecst\ucat::fetch_next($moodlecst, $responsedata,$questiondata,$currenttaskid);
+        echo $jsonrenderer->render_next_json($next);
+        break;
 	case 'testproperties':
 		echo $jsonrenderer->render_testproperties_json($moodlecst);
 		break;

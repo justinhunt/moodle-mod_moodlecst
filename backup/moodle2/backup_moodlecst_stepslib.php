@@ -52,7 +52,7 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
         // root element describing moodlecst instance
         $oneactivity = new backup_nested_element(MOD_MOODLECST_MODNAME, array('id'), array(
             'course','name','intro','introformat','someinstancesetting','grade','gradeoptions','maxattempts','mingrade',
-			'mode','partnermode','sessionsize','timecreated','timemodified'
+			'mode','partnermode','sessionsize','ucatendcondition','ucatreqitems','ucatse','ucatlogitbias','timecreated','timemodified'
 			));
 			
 		// slidepair	
@@ -69,13 +69,13 @@ class backup_moodlecst_activity_structure_step extends backup_activity_structure
 		//attempts
         $attempts = new backup_nested_element('attempts');
         $attempt = new backup_nested_element('attempt', array('id'),array(
-			MOD_MOODLECST_MODNAME ."id","course","userid","status","mode","sessionscore","timecreated","timemodified"
+			MOD_MOODLECST_MODNAME ."id","course","userid","status","mode","ucatenabled","ability","sessionscore","timecreated","timemodified"
 		));
 		
 		//items
         $items = new backup_nested_element('items');
         $item = new backup_nested_element('item', array('id'),array(
-			MOD_MOODLECST_MODNAME ."id","course","userid","attemptid","partnerid","slidepairid","sessionid","consent","correct","duration","timecreated","timemodified"
+			MOD_MOODLECST_MODNAME ."id","course","userid","attemptid","partnerid","slidepairid","sessionid","consent","correct","duration","difficulty","timecreated","timemodified"
 		));
 
 		

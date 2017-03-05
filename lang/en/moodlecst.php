@@ -91,6 +91,7 @@ $string['itemname'] = 'item Name';
 $string['itemtype'] = 'item Type';
 $string['actions'] = 'Actions';
 $string['edititem'] = 'Edit item';
+$string['duplicateitem'] = 'Copy item';
 $string['previewitem'] = 'Preview item';
 $string['deleteitem'] = 'Delete item';
 $string['confirmitemdelete'] = 'Are you sure you want to <i>DELETE</i> item? : {$a}';
@@ -169,14 +170,6 @@ $string['timetarget'] = 'Time Target';
 $string['timetargetignore'] = 'Ignore time target';
 $string['timetargetforce'] = 'Enforce time target';
 $string['timetargetshow'] = 'Show time target';
-$string['allattemptsreport'] = 'All Attempts Report';
-$string['allattemptsheading'] = 'All Attempts Report';
-$string['oneattemptreport'] = 'One Attempt Report';
-$string['oneattemptheading'] = 'One Attempt Report';
-$string['allslidepairsreport'] = 'All Slidepairs Report';
-$string['allslidepairsheading'] = 'All Slidepairs Report';
-$string['oneslidepairreport'] = 'One Slidepair Report';
-$string['oneslidepairheading'] = 'One Slidepair Report';
 $string['username'] = 'User';
 $string['partnername'] = 'Partner';
 $string['sessionscore'] = 'Score(%)';
@@ -198,6 +191,21 @@ $string['listheight'] = 'List Height';
 $string['listheightdetails'] = 'The list size of the select box containing slidepairs when creating new sessions.';
 $string['nodataavailable'] = 'No data available';
 $string['moodlecsttask'] = 'Moodle CST Task';
+$string['ability'] = 'Ability';
+
+//Reports
+$string['allattemptsreport'] = 'All Attempts Report';
+$string['allattemptsheading'] = 'All Attempts Report';
+$string['oneattemptreport'] = 'One Attempt Report';
+$string['oneattemptheading'] = 'One Attempt Report';
+$string['allslidepairsreport'] = 'All Slidepairs Report';
+$string['allslidepairsheading'] = 'All Slidepairs Report';
+$string['oneslidepairreport'] = 'One Slidepair Report';
+$string['oneslidepairheading'] = 'One Slidepair Report';
+$string['allabilitiesreport'] = 'UCAT All Attempts Report';
+$string['allabilitiesheading'] = 'UCAT All Abilities Report';
+$string['latestabilitysummaryreport'] = 'UCAT Latest Attempt Report';
+$string['latestabilitysummaryheading'] = 'UCAT Latest Attempt Report';
 
 //slidepairs
 $string['durationgradesettings'] = 'Grade Settings ';
@@ -230,3 +238,14 @@ $string['slidepaircount'] = 'Items';
 
 $string['points'] = 'Points';
 
+//UCAT stuff
+$string['ucatelements']="UCAT Settings";
+$string['enableucat']="Enable UCAT mode";
+$string['allitems']="All items in session";
+$string['byreqitems']="By 'required items to answer'";
+$string['byse']="By standard error";
+$string['byreqitemsandse']="By 'required items to answer' AND standard error";
+$string['endcondition']="Test end condition";
+$string['reqitems']="Required items to answer";
+$string['se']="Standard error";
+$string['logitbias']="Logit Bias";

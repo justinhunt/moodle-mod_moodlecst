@@ -108,6 +108,19 @@ function mod_moodlecst_fetch_maxpossiblescore($slidepairids){
 	return $total;
 }
 
+//Fetch the item difficulty
+//NB This is so inefficient. we need to cache the items. Apologies. It just temporary
+function mod_moodlecst_fetch_itemdifficulty($slidepairid){
+    global $DB;
+    $ret = 0;
+
+    $sp = $DB->get_record(MOD_MOODLECST_SLIDEPAIR_TABLE, array('id' => $slidepairid));
+    if ($sp) {
+        $ret = $sp->difficulty;
+    }
+    return $ret;
+}
+
 //Fetch the item score of a slidepair depending on users answer and how long took.
 function mod_moodlecst_fetch_itemscore($slidepairid, $duration, $correct){
 	global $CFG,$DB;

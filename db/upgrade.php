@@ -358,5 +358,55 @@ function xmldb_moodlecst_upgrade($oldversion) {
 	
 		upgrade_mod_savepoint(true, 2016092104, 'moodlecst');	
 	}
+
+	//adding UCAT mode
+    if($oldversion < 2017022400){
+
+        // Get moodle cst table
+        $table = new xmldb_table('moodlecst');
+
+        $newfields = array();
+        $newfields[] = new xmldb_field('ucatenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('ucatendcondition', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('ucatreqitems', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('ucatse', XMLDB_TYPE_NUMBER, '7', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('ucatlogitbias', XMLDB_TYPE_NUMBER, '7', null, XMLDB_NOTNULL, null, '0');
+
+        foreach($newfields as $newfield){
+            if (!$dbman->field_exists($table, $newfield)) {
+                $dbman->add_field($table, $newfield);
+            }
+        }
+        upgrade_mod_savepoint(true, 2017022400, 'moodlecst');
+    }
+
+    //adding some UCAT fields to the DB
+    if($oldversion < 2017022800){
+
+        // Add ucat info to attempt table
+        $table = new xmldb_table('moodlecst_attempt');
+
+        $newfields = array();
+        $newfields[] = new xmldb_field('ucatenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('ability', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        foreach($newfields as $newfield){
+            if (!$dbman->field_exists($table, $newfield)) {
+                $dbman->add_field($table, $newfield);
+            }
+        }
+
+        //add ucat info to attempt item table
+        $table = new xmldb_table('moodlecst_attemptitem');
+        $newfield= new xmldb_field('difficulty', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $newfield)) {
+            $dbman->add_field($table, $newfield);
+        }
+
+
+        upgrade_mod_savepoint(true, 2017022800, 'moodlecst');
+    }
+
+
     return true;
 }

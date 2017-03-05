@@ -135,15 +135,15 @@ abstract class moodlecst_add_item_form_base extends moodleform {
 		$mform->addElement('duration', 'timetarget', get_string('timetarget','moodlecst'),$duration_options);
 		
 		//difficulty
-		$diff_options = array();
-		$diff_options['1']='1';
-		$diff_options['2']='2';
-		$diff_options['3']='3';
-		$diff_options['4']='4';
-		$diff_options['5']='5';
+        $diff_options = array();
+        foreach (range(1, 100) as $d) {
+            $diff_options[$d]=$d;
+        }
+
         $controlname = MOD_MOODLECST_SLIDEPAIR_DIFFICULTY;
-        $mform->addElement('select',$controlname, get_string('difficulty', 'moodlecst'),$diff_options);
+        $mform->addElement('select',$controlname, get_string('difficulty', 'moodlecst'),$diff_options,0);
         $mform->setType($controlname, PARAM_INT);
+        $mform->setDefault($controlname, 0);
 		
 		$mform->addElement('header', 'typeheading', 
 				get_string('durationgradesettings', 'moodlecst'));

@@ -71,6 +71,11 @@ public static function start_server($app_path) {
 		if(strpos($temppath,'/')!==0){
 			$temppath = $CFG->dirroot . '/mod/moodlecst/' . $temppath;
 		}
+		//if temp path does not exist, lets create it.
+        if (!file_exists($temppath)) {
+            mkdir($temppath, 0755, true);
+        }
+
 		return $temppath;
 	}
 
