@@ -126,6 +126,12 @@ class mod_moodlecst_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'ucatenabled', get_string('enableucat',MOD_MOODLECST_LANG ));
 
+        $opts_estimatemethod = array(
+            \mod_moodlecst\ucat::ESTIMATE_SIMPLE => get_string('estimatesimple', MOD_MOODLECST_LANG),
+            \mod_moodlecst\ucat::ESTIMATE_COMPLEX => get_string('estimatecomplex', MOD_MOODLECST_LANG),
+        );
+        $mform->addElement('select', 'estimatemethod', get_string('estimatemethod', MOD_MOODLECST_LANG), $opts_estimatemethod);
+
         $opts_endcondition = array(
             \mod_moodlecst\ucat::ENDCOND_ALL => get_string('allitems', MOD_MOODLECST_LANG),
             \mod_moodlecst\ucat::ENDCOND_NUMQUEST => get_string('byreqitems', MOD_MOODLECST_LANG),
@@ -142,7 +148,7 @@ class mod_moodlecst_mod_form extends moodleform_mod {
         $mform->setType('ucatse', PARAM_FLOAT);
         $mform->setDefault('ucatse', 0);
 
-        $mform->addElement('text', 'ucatlogitbias', get_string('logitbias', MOD_MOODLECST_LANG), ['size' => 8]);
+        $mform->addElement('hidden', 'ucatlogitbias');
         $mform->setType('ucatlogitbias', PARAM_FLOAT);
         $mform->setDefault('ucatlogitbias', 0);
 

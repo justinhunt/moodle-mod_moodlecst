@@ -249,3 +249,7 @@ $string['endcondition']="Test end condition";
 $string['reqitems']="Required items to answer";
 $string['se']="Standard error";
 $string['logitbias']="Logit Bias";
+$string['estimatemethod']="Ability estimate method";
+$string['estimatesimple']="Simple";
+$string['estimatecomplex']="Complex";
+

@@ -160,10 +160,12 @@ $update_data->ability=0;
 if($moduleinstance->ucatenabled) {
     $slidepairs = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,
         'id IN (' . $slidepairids . ')', array(), 'moodlecst, id ASC');
-    $currentability = 0;
-    $abilitydata = \mod_moodlecst\ucat::process_answer($slidepairs, $results, $currentability);
+
+    $abilitydata = \mod_moodlecst\ucat::process_answer($slidepairs, $results,$moduleinstance->estimatemethod);
     $update_data->ucatenabled=$moduleinstance->ucatenabled;
-    $update_data->ability=$abilitydata->ability;
+    //we remove decimals, because the result can not be more accurate than the samples it was drawn from
+    //and because students prob. dont need decimal level accuracy on their score
+    $update_data->ability=round($abilitydata->ability);
 }
 //update attempt table
 $DB->update_record(MOD_MOODLECST_ATTEMPTTABLE,$update_data);

@@ -407,6 +407,22 @@ function xmldb_moodlecst_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017022800, 'moodlecst');
     }
 
+    //adding some UCAT fields to the DB
+    if($oldversion < 2018022800){
+
+        // Add ucat info to attempt table
+        $table = new xmldb_table('moodlecst');
+
+        $newfields = array();
+        $newfields[] = new xmldb_field('estimatemethod', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0');
+
+        foreach($newfields as $newfield){
+            if (!$dbman->field_exists($table, $newfield)) {
+                $dbman->add_field($table, $newfield);
+            }
+        }
+        upgrade_mod_savepoint(true, 2018022800, 'moodlecst');
+    }
 
     return true;
 }

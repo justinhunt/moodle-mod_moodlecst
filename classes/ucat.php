@@ -44,6 +44,8 @@ class ucat{
     const ENDCOND_SE            = 2;
     const ENDCOND_NUMQUESTANDSE = 3;
     const DUMMY_SE = 100;
+    const ESTIMATE_SIMPLE =0;
+    const ESTIMATE_COMPLEX =1;
 
     /**
      * Implements adaptive feature by returning the Task ID of next question
@@ -66,36 +68,22 @@ class ucat{
         $items = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,
             'id IN (' . $questioncsv. ')', array(), 'moodlecst, id ASC');
 
-        $currentability = 0;
-        $abilitydata = self::process_answer($items, $responsedata, $currentability);
-       // error_log(print_r($abilitydata,true));
+
+        $abilitydata = self::process_answer($items, $responsedata,$moodlecst->estimatemethod);
+         error_log(print_r($abilitydata,true));
 
         $letsfinish = self::check_ending_condition($moodlecst,$responsedata, $abilitydata);
         if ($letsfinish) {
             $next_task_id=0;
-            error_log("finishing");
+         //   error_log("finishing");
         }else{
             $next_task_id = self::get_next_item($moodlecst, $items, $responsedata, $abilitydata);
-            error_log("next item:" . $next_task_id);
+          //  error_log("next item:" . $next_task_id);
         }
         $ret->next_task_id=$next_task_id;
         return $ret;
 
-        /*
 
-
-        //roughly incremental method
-        foreach($questiondata as $taskid){
-            if($taskid >$currenttaskid){
-                $ret->next_task_id=$taskid;
-                break;
-            }
-        }
-       // $ret->next_task_id=3;//$questiondata[0];
-       // error_log(print_r($questiondata,true));
-       error_log(print_r($responsedata,true));
-        return $ret;
-        */
     }
 
     /**
@@ -112,7 +100,7 @@ class ucat{
                 return false;
 
             case ucat::ENDCOND_SE:
-                if ($abilitydata->se < $moodlecst->ucatse) {
+                if (count($responsedata) > 1 && ($abilitydata->se < $moodlecst->ucatse)) {
                     return true;
                 }
                 return false;
@@ -129,81 +117,108 @@ class ucat{
     }
 
 
+
+    public static function estimateAbilitySimple($oldability, $difficulty,$correct) {
+        $newability=$oldability;
+        if($correct){
+            if($oldability < $difficulty){
+                $newability = $difficulty;
+            }
+        }else{
+            if($oldability > $difficulty){
+                $newability = $difficulty;
+            }
+        }
+        return $newability;
+    }
+    public static function fetchProbOfSuccess($oldability, $difficulty) {
+        $prob_of_success = 1 / (1 + exp($difficulty - $oldability));
+        return $prob_of_success;
+    }
+
+    public static function estimateAbilityComplex($oldability,$probsum, $correctsum) {
+        $residual=$correctsum - $probsum;
+        $newability=$oldability +$residual;
+        return $newability;
+    }
+
+
     //this is where we set the students ability and the margin flag (abilright) and standard error
     //its calculated each time by what we now know about their ability
     //there is a problem here because the currentability is not kept recorded and always starts at 0.
     //The original algorithm started with the most recent known ability
-    public static function process_answer($items,$answers,$currentability) {
-        global $DB;
+    public static function process_answer($items,$answers,$estimatemethod)
+    {
 
         $ret = new \stdClass();
-        $ret->se=0;
-        $ret->ability=50; //set this to zero if diff range is -200 - 200
-        $ret->abilright=0;
+        $answercount = count($answers);
 
-        $pexp = 0;
-        $pvar = 0;
-        $presult = 0;
-
-        //reset answer indexes
-        $answers = array_values($answers);
+        //simple ability estimates
+        $simple_current_ability = 50; //set this to zero if diff range is -200 - 200
+        $simple_abilities = array();
 
 
-        //NB does answers include consent etc??
-        for ($p = 0; $p < count($answers); $p++) {
+        //complex ability estimates
+        $complex_current_ability=50; //set this to zero if diff range is -200 - 200
+        $probsum=0; //sum of the probability for success of each item based on immediate previous ability estimate
+        $probvariancesum=0;//sum this calc ...$probOfSuccess * (1 - $probOfSuccess) .. some sort of margin for determining next item difficulty
+        $correctsum=0; //sum of corret answers
+
+        for ($p = 0; $p < $answercount; $p++) {
             $answer = $answers[$p];
             $item = $items[$answer->slidepairid];
-
-            $success = 1 / (1 + exp(($item->difficulty) - $currentability));
-            $pexp += $success;
-            $pvar += $success * (1 - $success);
-
-            //old value
-            //$presult += $attempt->get_mark();
-            //need to set correct value, it will be empty currently
             $correct = $answer->answerid == $item->correctanswer;
-           // error_log('ANSWER::' . print_r($answer,true));
-            $presult += mod_moodlecst_fetch_itemscore($answer->slidepairid,
-                $answer->duration,
-                $correct);
-        }
-        if ($pvar != 0) {
-            $ret->se = sqrt(1 / $pvar);
-        }
-        if ($pvar < 1) {
-            $pvar = 1;
+
+            //estimation method SIMPLE
+            $simple_current_ability=self::estimateAbilitySimple($simple_current_ability,$item->difficulty,$correct);
+            $simple_abilities[] = $simple_current_ability;
+
+
+            //estimation COMPLEX
+            $probOfSuccess=self::fetchProbOfSuccess($complex_current_ability,$item->difficulty);
+            $probsum+=$probOfSuccess;
+            $correctsum+=$correct;
+            $probvariancesum+= $probOfSuccess * (1 - $probOfSuccess);
+            $complex_current_ability=self::estimateAbilityComplex($complex_current_ability,$probsum,$correctsum);
+          //  error_log($complex_current_ability . '@@' . $probsum. '@@' . $correctsum);
+            $complex_abilities[]=$complex_current_ability;
         }
 
-        $ret->ability += ($presult - $pexp) / $pvar;
-        $ret->abilright = $ret->ability + (1 / $pvar);
+        //get stats functions
+        $stats = new stats();
+
+        if($answercount>1) {
+            switch($estimatemethod){
+                case UCAT::ESTIMATE_COMPLEX :
+                    $sd = $stats->std_dev_sample($complex_abilities);
+                    break;
+                case UCAT::ESTIMATE_SIMPLE:
+                default:
+                    $sd = $stats->std_dev_sample($simple_abilities);
+            }
+            $se = $stats->std_error($sd, $answercount);
+        }else{
+            $se=0;
+            $sd=0;
+        }
+       // error_log('SD:' . $sd . '@@' . 'SE:' . $se);
+
+        if($estimatemethod == UCAT::ESTIMATE_COMPLEX ){
+            $ret->se=$se;
+            $ret->ability = $complex_current_ability;
+            if($probvariancesum <1){$probvariancesum=1;}
+            $ret->abilright = $complex_current_ability + (1 / $probvariancesum);
+        }else{
+            $ret->se=$se;
+            $ret->ability = $simple_current_ability;
+            $ret->abilright = $simple_current_ability+1;
+        }
+
         return $ret;
 
     }
 
     public static function get_next_item($moodlecst,$items, $answers, $abilitydata) {
-
-        global $DB;
-        /*
-        //Adding questions to pool of questions already in session
-        // so add a where to check if we already have taken a question
-
-        $where = '';
-        if ($this->questions) {
-            $where = ' AND q.id NOT IN ('.implode(',', $this->questions).')';
-        }
-
-        //This UCAT mod appends functions via existing questionbank
-        //here we check the q categories that have been flagged to include
-        $qcats = implode(',', question_categorylist($this->ucat->questioncategory));
-
-        //we collect all the question ids/difficulties for questions flagged in categories flagged, that we do not already have
-        $qdiffs = $DB->get_records_sql('
-                SELECT q.id, uq.difficulty
-                    FROM {question} q
-                        LEFT JOIN {ucat_questions} uq ON q.id = uq.questionid
-                    WHERE q.category in ('.$qcats.')'.$where
-        );
-*/
 
 
         //get an array of items not yet attempted
@@ -217,9 +232,6 @@ class ucat{
         $items = array_values($items);
         //count the array
         $qcount = count($items);
-
-        $accuracy = 0.7;
-        $qselect = 0;
 
         //if no questions we just return
         if ($qcount == 0) {
@@ -241,6 +253,7 @@ class ucat{
         //loop the total number of questions(eg qcount =15, 15 times)
         //but start from n, so we will probably go over the qcount
         $qselect = 0;
+        $qhold=0;
         for ($qq = $n + 1; $qq <= $qcount + $n; $qq++) {
             // a randomisation technique that ensures all questions are eligible
             // this results in q starting from somewhere in the question list
@@ -270,24 +283,6 @@ class ucat{
             }
         }
 
-        //It seems to always choose a higher difficulty level, and this probably works because the ability is downgraded
-        //on a wrong answer
-/*
-        $this->questions[] = $items[$qselect]->id;
-        $this->session->questions = serialize($this->questions);
-        $this->update();
-        $this->currentquestion = $items[$qselect]->id;
-        $quba = question_engine::load_questions_usage_by_activity($this->questionsusage);
-        $questions = question_load_questions(array($this->currentquestion));
-        $qobj = question_bank::make_question(reset($questions));
-        $slot = $quba->add_question($qobj);
-        $quba->start_question($slot);
-        question_engine::save_questions_usage_by_activity($quba);
-        $this->session->slot = $slot;
-        $this->session->status = self::STATUS_ASKED;
-        $this->update();
-  */
-     //   error_log('QSELECT::::' . $qselect);
         return $items[$qselect]->id;
     }
 
