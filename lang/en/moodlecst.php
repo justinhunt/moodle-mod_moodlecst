@@ -206,6 +206,9 @@ $string['allabilitiesreport'] = 'UCAT All Attempts Report';
 $string['allabilitiesheading'] = 'UCAT All Abilities Report';
 $string['latestabilitysummaryreport'] = 'UCAT Latest Attempt Report';
 $string['latestabilitysummaryheading'] = 'UCAT Latest Attempt Report';
+$string['showabilitycalcreport'] = 'UCAT Ability Estimate Calculation Report';
+$string['showabilitycalcheading'] = 'UCAT Ability Estimate Calculation Report';
+
 
 //slidepairs
 $string['durationgradesettings'] = 'Grade Settings ';
@@ -248,6 +251,7 @@ $string['byreqitemsandse']="By 'required items to answer' AND standard error";
 $string['endcondition']="Test end condition";
 $string['reqitems']="Required items to answer";
 $string['se']="Standard error";
+$string['sd']="Standard deviation";
 $string['logitbias']="Logit Bias";
 $string['estimatemethod']="Ability estimate method";
 $string['estimatesimple']="Simple";

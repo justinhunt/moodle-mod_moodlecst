@@ -70,7 +70,7 @@ class ucat{
 
 
         $abilitydata = self::process_answer($items, $responsedata,$moodlecst->estimatemethod);
-         error_log(print_r($abilitydata,true));
+        // error_log(print_r($abilitydata,true));
 
         $letsfinish = self::check_ending_condition($moodlecst,$responsedata, $abilitydata);
         if ($letsfinish) {
@@ -147,11 +147,13 @@ class ucat{
     //its calculated each time by what we now know about their ability
     //there is a problem here because the currentability is not kept recorded and always starts at 0.
     //The original algorithm started with the most recent known ability
-    public static function process_answer($items,$answers,$estimatemethod)
+    public static function process_answer($items,$answers,$estimatemethod, $prepareLog=false)
     {
 
         $ret = new \stdClass();
         $answercount = count($answers);
+        //get stats functions
+        $stats = new stats();
 
         //simple ability estimates
         $simple_current_ability = 50; //set this to zero if diff range is -200 - 200
@@ -163,6 +165,10 @@ class ucat{
         $probsum=0; //sum of the probability for success of each item based on immediate previous ability estimate
         $probvariancesum=0;//sum this calc ...$probOfSuccess * (1 - $probOfSuccess) .. some sort of margin for determining next item difficulty
         $correctsum=0; //sum of corret answers
+
+        //log for reporting
+        $itemlogs=array();
+
 
         for ($p = 0; $p < $answercount; $p++) {
             $answer = $answers[$p];
@@ -182,10 +188,31 @@ class ucat{
             $complex_current_ability=self::estimateAbilityComplex($complex_current_ability,$probsum,$correctsum);
           //  error_log($complex_current_ability . '@@' . $probsum. '@@' . $correctsum);
             $complex_abilities[]=$complex_current_ability;
-        }
 
-        //get stats functions
-        $stats = new stats();
+            //this is a log of each step of the process, for reporting and debugging
+            if($prepareLog){
+                $itemlog=new \stdClass();
+                switch($estimatemethod){
+                    case UCAT::ESTIMATE_COMPLEX :
+                        $itemlog->ability=$complex_current_ability;
+                        $use_abilities=$complex_abilities;
+                        break;
+                    case UCAT::ESTIMATE_SIMPLE:
+                    default:
+                        $itemlog->ability=$simple_current_ability;
+                        $use_abilities=$simple_abilities;
+                }
+
+                if($p==0){
+                    $itemlog->sd=0;
+                    $itemlog->se=0;
+                }else{
+                    $itemlog->sd = $stats->std_dev_sample($use_abilities);
+                    $itemlog->se = $stats->std_error($itemlog->sd, $p);
+                }
+                $itemlogs[$answer->slidepairid]=$itemlog;
+            }//end of prepare log
+        }//end of loop
 
         if($answercount>1) {
             switch($estimatemethod){
@@ -203,6 +230,12 @@ class ucat{
         }
        // error_log('SD:' . $sd . '@@' . 'SE:' . $se);
 
+        //If we are just logging, then return the log and exit
+        if($prepareLog){
+            return $itemlogs;
+        }
+
+        //more likely its a real test and we want to return data to test
         if($estimatemethod == UCAT::ESTIMATE_COMPLEX ){
             $ret->se=$se;
             $ret->ability = $complex_current_ability;

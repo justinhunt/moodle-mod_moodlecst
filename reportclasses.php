@@ -345,6 +345,17 @@ class mod_moodlecst_allabilities_report extends  mod_moodlecst_base_report {
                 $ret=fullname($theuser);
                 break;
 
+            case 'ability':
+                $ret=$record->ability;
+                if($withlinks){
+                    $showabilitycalcurl = new moodle_url('/mod/moodlecst/reports.php',
+                        array('n'=>$record->moodlecstid,
+                            'report'=>'showabilitycalc',
+                            'itemid'=>$record->id));
+                    $ret = html_writer::link($showabilitycalcurl,$ret);
+                }
+                break;
+
             case 'partnername':
                 $theuser = $this->fetch_cache('user',$record->partnerid);
                 $ret=fullname($theuser);
@@ -788,7 +799,7 @@ class mod_moodlecst_oneattempt_report extends  mod_moodlecst_base_report {
 }
 
 /*
-* All Attempts Report
+* All Slidepairs Report
 *
 *
 */
@@ -868,6 +879,121 @@ class mod_moodlecst_allslidepairs_report extends  mod_moodlecst_base_report {
 		return true;
 	}
 }
+
+/*
+* One Attempt Report
+*
+*
+*/
+class mod_moodlecst_showabilitycalc_report extends  mod_moodlecst_base_report {
+
+    protected $report="showabilitycalc";
+    protected $fields = array('id','slidepairname','answer','difficulty','correct','ability','sd','se');
+    protected $headingdata = null;
+    protected $qcache=array();
+    protected $ucache=array();
+
+    public function fetch_formatted_field($field,$record,$withlinks){
+        global $DB;
+        switch($field){
+            case 'id':
+                $ret = $record->id;
+                if($withlinks && false){
+                    $oneattempturl = new moodle_url('/mod/moodlecst/reports.php',
+                        array('n'=>$record->moodlecstid,
+                            'report'=>'oneattempt',
+                            'itemid'=>$record->id));
+                    $ret = html_writer::link($oneattempturl,$ret);
+                }
+                break;
+
+            case 'slidepairname':
+                $theslidepair = $this->fetch_cache(MOD_MOODLECST_SLIDEPAIR_TABLE,$record->slidepairid);
+                $ret=$theslidepair->name;
+                break;
+
+            case 'correct':
+                $theuser = $this->fetch_cache('user',$record->partnerid);
+                $ret=$record->correct ? get_string('yes') : get_string('no');
+                break;
+
+            case 'answer':
+                $ret=$record->answerid;
+                break;
+
+            case 'ability':
+                $ret= round($record->ability,2);
+                break;
+
+            case 'sd':
+                $ret = round($record->sd,2);
+                break;
+
+            case 'se':
+                $ret = round($record->se,2);
+                break;
+
+
+            default:
+                if(property_exists($record,$field)){
+                    $ret=$record->{$field};
+                }else{
+                    $ret = '';
+                }
+        }
+        return $ret;
+    }
+
+    public function fetch_formatted_heading(){
+        $record = $this->headingdata;
+        $ret='';
+        if(!$record){return $ret;}
+        //$ec = $this->fetch_cache(MOD_MOODLECST_TABLE,$record->englishcentralid);
+        return get_string('showabilitycalcheading',MOD_MOODLECST_LANG);
+
+    }
+
+    public function process_raw_data($formdata,$moduleinstance){
+        global $DB;
+
+        //heading data
+        $this->headingdata = new stdClass();
+
+        $emptydata = array();
+        $attemptitemdata = $DB->get_records(MOD_MOODLECST_ATTEMPTITEMTABLE,array('attemptid'=>$formdata->attemptid,'course'=>$moduleinstance->course,'moodlecstid'=>$moduleinstance->id));
+
+        //process attempt data to get abilty log
+       if($attemptitemdata) {
+
+           //build answers for processanswer (could just pass in alldata ...but to keep it comprehensible..)
+           foreach ($attemptitemdata as $attemptitem) {
+               $answer = new stdClass();
+               $answer->slidepairid = $attemptitem->slidepairid;
+               $answer->answerid = $attemptitem->answerid;
+               $answers[] = $answer;
+               $slidepairids[] = $attemptitem->slidepairid;
+           }
+           $items = $DB->get_records_select(MOD_MOODLECST_SLIDEPAIR_TABLE,
+               'id IN (' . implode(',', $slidepairids) . ')', array());
+
+           $itemlogs = \mod_moodlecst\ucat::process_answer($items, $answers, $moduleinstance->estimatemethod, true);
+           foreach ($attemptitemdata as $attemptitem) {
+               $attemptitem->ability = $itemlogs[$attemptitem->slidepairid]->ability;
+               $attemptitem->se = $itemlogs[$attemptitem->slidepairid]->se;
+               $attemptitem->sd = $itemlogs[$attemptitem->slidepairid]->sd;
+           }
+       }
+
+       //return results
+        if($attemptitemdata){
+            $this->rawdata= $attemptitemdata;
+        }else{
+            $this->rawdata= $emptydata;
+        }
+        return true;
+    }
+}
+
 
 /*
 * All Attempts Report

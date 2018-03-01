@@ -152,8 +152,15 @@ switch ($showreport){
 		$formdata = new stdClass();
 		$formdata->attemptid=$itemid;
 		break;
-		
-	case 'allslidepairs':
+
+    case 'showabilitycalc':
+        $report = new mod_moodlecst_showabilitycalc_report();
+        $formdata = new stdClass();
+        $formdata->attemptid=$itemid;
+        break;
+
+
+    case 'allslidepairs':
 		$report = new mod_moodlecst_allslidepairs_report();
 		$formdata = new stdClass();
 		break;
