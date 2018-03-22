@@ -208,6 +208,8 @@ $string['latestabilitysummaryreport'] = 'UCAT Latest Attempt Report';
 $string['latestabilitysummaryheading'] = 'UCAT Latest Attempt Report';
 $string['showabilitycalcreport'] = 'UCAT Ability Estimate Calculation Report';
 $string['showabilitycalcheading'] = 'UCAT Ability Estimate Calculation Report';
+$string['allslidepairsallusersreport'] = 'All Slidepairs All Users Report';
+$string['allslidepairsallusersheading'] = 'All Slidepairs All Users Report';
 
 
 //slidepairs
@@ -240,6 +242,13 @@ $string['normal'] = 'Normal';
 $string['slidepaircount'] = 'Items';
 
 $string['points'] = 'Points';
+
+$string['userid'] = 'User ID';
+$string['lastname'] = 'Last name';
+$string['firstname'] = 'First name';
+$string['attemptid'] = 'Attempt ID';
+$string['allcount'] = 'All count';
+
 
 //UCAT stuff
 $string['ucatelements']="UCAT Settings";

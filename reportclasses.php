@@ -708,11 +708,6 @@ class mod_moodlecst_latestattemptsummary_report extends mod_moodlecst_base_repor
 }
 
 
-
-
-
-
-
 /*
 * One Attempt Report
 *
@@ -996,7 +991,7 @@ class mod_moodlecst_showabilitycalc_report extends  mod_moodlecst_base_report {
 
 
 /*
-* All Attempts Report
+* One slidepair Report
 *
 *
 */
@@ -1074,3 +1069,125 @@ class mod_moodlecst_oneslidepair_report extends  mod_moodlecst_base_report {
 	}
 }
 
+/*
+* All Slidepairs all users Report
+*
+*
+*/
+class mod_moodlecst_allslidepairsallusers_report extends  mod_moodlecst_base_report {
+
+    protected $report="allslidepairsallusers";
+    protected $fields = array('userid','lastname','firstname','attemptid','allcount');
+    protected $headingdata = null;
+    protected $qcache=array();
+    protected $ucache=array();
+
+    public function fetch_formatted_field($field,$record,$withlinks){
+        global $DB;
+        switch($field){
+
+            default:
+                if(property_exists($record,$field)){
+                    $ret=$record->{$field};
+                }else{
+                    $ret = '';
+                }
+        }
+        return $ret;
+    }
+
+    public function fetch_formatted_heading(){
+        $record = $this->headingdata;
+        $ret='';
+        if(!$record){return $ret;}
+        //$ec = $this->fetch_cache(MOD_MOODLECST_TABLE,$record->englishcentralid);
+        return get_string('allslidepairsallusersheading',MOD_MOODLECST_LANG);
+
+    }
+
+
+    public function fetch_head(){
+        $head=array();
+        foreach($this->fields as $field){
+            switch($field){
+                case 'userid':
+                case 'lastname':
+                case 'firstname':
+                case 'attemptid':
+                case 'allcount':
+                    $head[] = get_string($field, MOD_MOODLECST_LANG);
+                    break;
+
+                default:
+                    //if it begins with item then its a slidepair name we need
+                    $slidepairid= str_replace('item_','',$field);
+                    $theslidepair = $this->fetch_cache(MOD_MOODLECST_SLIDEPAIR_TABLE,$slidepairid);
+                    $head[] = $theslidepair->name;
+            }
+        }
+        return $head;
+    }
+
+
+    public function process_raw_data($formdata,$moduleinstance){
+        global $DB;
+
+        //heading data for report header, add moodle cst name
+        $this->headingdata = new stdClass();
+        $this->headingdata = $this->fetch_cache('moodlecst',$moduleinstance->id);
+
+
+        //fetch all item ids
+        $itemarray= $DB->get_fieldset_select(MOD_MOODLECST_ATTEMPTITEMTABLE,
+            'slidepairid', 'moodlecstid = ?',array($moduleinstance->id));
+        $slidepairids = array_unique($itemarray);
+
+
+        //perform actions for each slidepair id in the report.
+        $itemsql=array();
+        foreach($slidepairids as $slidepairid){
+            //build SQL per item. This is the "pivot table"
+            $itemsql[] = "SUM(IF(slidepairid=$slidepairid,correct,null)) as item_" . $slidepairid;
+
+            //Add the item/slidepair field to the report list of fields
+            $this->fields[] = 'item_' . $slidepairid;
+        }
+        $itemsqlstring = implode(',',$itemsql) ;
+
+
+
+        //Assemble SQL
+        $sql = "SELECT attemptid,userid,lastname,firstname," . $itemsqlstring;
+        $sql .= ",SUM( correct) as allcount ";
+        $sql .= "FROM mdl_moodlecst_attemptitem ai ";
+        $sql .= "INNER JOIN mdl_user u ON ai.userid=u.id ";
+        $sql .= "WHERE moodlecstid = ?" ;
+        $sql .= "GROUP BY userid,lastname,firstname,attemptid ";
+        $sql .= "ORDER BY lastname,firstname,attemptid, userid ";
+
+
+        //it will look like this ...
+        /*
+        SELECT userid,lastname,firstname, attemptid,
+        SUM(IF(slidepairid=24,correct,null)) as 'item_24',
+        SUM(IF(slidepairid=25,correct,null)) as 'item_25',
+        SUM(IF(slidepairid=26,correct,null)) as 'item_26',
+        SUM(IF(slidepairid=27,correct,null)) as 'item_27',
+        SUM( correct) as allcount
+        FROM mdl_moodlecst_attemptitem ai
+        INNER JOIN mdl_user u ON ai.userid=u.id
+        WHERE moodlecstid = ?
+        GROUP BY userid,lastname,firstname,attemptid;
+        */
+
+
+        $emptydata = array();
+        $alldata = $DB->get_records_sql($sql,array($moduleinstance->id));
+        if($alldata){
+            $this->rawdata= $alldata;
+        }else{
+            $this->rawdata= $emptydata;
+        }
+        return true;
+    }
+}

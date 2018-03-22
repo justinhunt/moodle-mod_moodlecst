@@ -414,7 +414,7 @@ function xmldb_moodlecst_upgrade($oldversion) {
         $table = new xmldb_table('moodlecst');
 
         $newfields = array();
-        $newfields[] = new xmldb_field('estimatemethod', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0');
+        $newfields[] = new xmldb_field('estimatemethod', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '1');
 
         foreach($newfields as $newfield){
             if (!$dbman->field_exists($table, $newfield)) {

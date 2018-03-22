@@ -4,6 +4,11 @@
 	/*float: left;*/
 }
 
+.mod_moodlecst_listbuttons .singlebutton {
+	padding: 5px;
+	margin: 5px;
+}
+
 .mod_moodlecst_buttoncontainer{
 	display: flex;
 	float: center;

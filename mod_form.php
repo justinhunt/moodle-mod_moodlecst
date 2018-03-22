@@ -131,6 +131,7 @@ class mod_moodlecst_mod_form extends moodleform_mod {
             \mod_moodlecst\ucat::ESTIMATE_COMPLEX => get_string('estimatecomplex', MOD_MOODLECST_LANG),
         );
         $mform->addElement('select', 'estimatemethod', get_string('estimatemethod', MOD_MOODLECST_LANG), $opts_estimatemethod);
+        $mform->setDefault('estimatemethod', \mod_moodlecst\ucat::ESTIMATE_COMPLEX);
 
         $opts_endcondition = array(
             \mod_moodlecst\ucat::ENDCOND_ALL => get_string('allitems', MOD_MOODLECST_LANG),
